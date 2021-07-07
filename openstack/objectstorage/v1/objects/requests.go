@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"strings"
 	"time"
 
@@ -502,15 +503,20 @@ func CreateTempURL(c *gophercloud.ServiceClient, containerName, objectName strin
 		tempURLKey = getHeader.TempURLKey
 	}
 	secretKey := []byte(tempURLKey)
-	url := getURL(c, containerName, objectName)
-	splitPath := strings.Split(url, opts.Split)
-	baseURL, objectPath := splitPath[0], splitPath[1]
-	objectPath = opts.Split + objectPath
-	body := fmt.Sprintf("%s\n%d\n%s", opts.Method, expiry, objectPath)
+	parsedUrl, err := url.Parse(getURL(c, containerName, objectName))
+	if err != nil {
+		return "", err
+	}
+	path, err := url.PathUnescape(parsedUrl.RawPath)
+	if err != nil {
+		return "", err
+	}
+	body := fmt.Sprintf("%s\n%d\n%s", opts.Method, expiry, path)
 	hash := hmac.New(sha1.New, secretKey)
 	hash.Write([]byte(body))
 	hexsum := fmt.Sprintf("%x", hash.Sum(nil))
-	return fmt.Sprintf("%s%s?temp_url_sig=%s&temp_url_expires=%d", baseURL, objectPath, hexsum, expiry), nil
+	// Display unescaped url for the user.
+	return fmt.Sprintf("%s://%s%s?temp_url_sig=%s&temp_url_expires=%d", parsedUrl.Scheme, parsedUrl.Host, path, hexsum, expiry), nil
 }
 
 // BulkDelete is a function that bulk deletes objects.

@@ -24,7 +24,7 @@ func TestDownloadReader(t *testing.T) {
 	defer th.TeardownHTTP()
 	HandleDownloadObjectSuccessfully(t)
 
-	response := objects.Download(fake.ServiceClient(), "testContainer", "testObject", nil)
+	response := objects.Download(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", nil)
 	defer response.Body.Close()
 
 	// Check reader
@@ -38,7 +38,7 @@ func TestDownloadExtraction(t *testing.T) {
 	defer th.TeardownHTTP()
 	HandleDownloadObjectSuccessfully(t)
 
-	response := objects.Download(fake.ServiceClient(), "testContainer", "testObject", nil)
+	response := objects.Download(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", nil)
 
 	// Check []byte extraction
 	bytes, err := response.ExtractContent()
@@ -65,14 +65,14 @@ func TestDownloadWithLastModified(t *testing.T) {
 	options1 := &objects.DownloadOpts{
 		IfUnmodifiedSince: time.Date(2009, time.November, 10, 22, 59, 59, 0, time.UTC),
 	}
-	response1 := objects.Download(fake.ServiceClient(), "testContainer", "testObject", options1)
+	response1 := objects.Download(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options1)
 	_, err1 := response1.Extract()
 	th.AssertErr(t, err1)
 
 	options2 := &objects.DownloadOpts{
 		IfModifiedSince: time.Date(2009, time.November, 10, 23, 0, 1, 0, time.UTC),
 	}
-	response2 := objects.Download(fake.ServiceClient(), "testContainer", "testObject", options2)
+	response2 := objects.Download(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options2)
 	content, err2 := response2.ExtractContent()
 	th.AssertNoErr(t, err2)
 	th.AssertEquals(t, len(content), 0)
@@ -169,7 +169,7 @@ func TestCreateObject(t *testing.T) {
 	HandleCreateTextObjectSuccessfully(t, content)
 
 	options := &objects.CreateOpts{ContentType: "text/plain", Content: strings.NewReader(content)}
-	res := objects.Create(fake.ServiceClient(), "testContainer", "testObject", options)
+	res := objects.Create(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options)
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -185,7 +185,7 @@ func TestCreateObjectWithCacheControl(t *testing.T) {
 		CacheControl: `max-age="3600", public`,
 		Content:      strings.NewReader(content),
 	}
-	res := objects.Create(fake.ServiceClient(), "testContainer", "testObject", options)
+	res := objects.Create(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options)
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -197,7 +197,7 @@ func TestCreateObjectWithoutContentType(t *testing.T) {
 
 	HandleCreateTypelessObjectSuccessfully(t, content)
 
-	res := objects.Create(fake.ServiceClient(), "testContainer", "testObject", &objects.CreateOpts{Content: strings.NewReader(content)})
+	res := objects.Create(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", &objects.CreateOpts{Content: strings.NewReader(content)})
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -212,7 +212,7 @@ func TestErrorIsRaisedForChecksumMismatch(t *testing.T) {
 	})
 
 	content := strings.NewReader("The sky was the color of television, tuned to a dead channel.")
-	res := Create(fake.ServiceClient(), "testContainer", "testObject", &CreateOpts{Content: content})
+	res := Create(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", &CreateOpts{Content: content})
 
 	err := fmt.Errorf("Local checksum does not match API ETag header")
 	th.AssertDeepEquals(t, err, res.Err)
@@ -225,7 +225,7 @@ func TestCopyObject(t *testing.T) {
 	HandleCopyObjectSuccessfully(t)
 
 	options := &objects.CopyOpts{Destination: "/newTestContainer/newTestObject"}
-	res := objects.Copy(fake.ServiceClient(), "testContainer", "testObject", options)
+	res := objects.Copy(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options)
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -234,7 +234,7 @@ func TestDeleteObject(t *testing.T) {
 	defer th.TeardownHTTP()
 	HandleDeleteObjectSuccessfully(t)
 
-	res := objects.Delete(fake.ServiceClient(), "testContainer", "testObject", nil)
+	res := objects.Delete(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", nil)
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -250,7 +250,7 @@ func TestBulkDelete(t *testing.T) {
 		Errors:         [][]string{},
 	}
 
-	resp, err := objects.BulkDelete(fake.ServiceClient(), "testContainer", []string{"testObject1", "testObject2"}).Extract()
+	resp, err := objects.BulkDelete(fake.ServiceClient(), "testContainerWith and %", []string{"testObject1", "testObject2"}).Extract()
 	th.AssertNoErr(t, err)
 	th.AssertDeepEquals(t, expected, *resp)
 }
@@ -264,7 +264,7 @@ func TestUpateObjectMetadata(t *testing.T) {
 		Metadata:       map[string]string{"Gophercloud-Test": "objects"},
 		RemoveMetadata: []string{"Gophercloud-Test-Remove"},
 	}
-	res := objects.Update(fake.ServiceClient(), "testContainer", "testObject", options)
+	res := objects.Update(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", options)
 	th.AssertNoErr(t, res.Err)
 }
 
@@ -274,14 +274,14 @@ func TestGetObject(t *testing.T) {
 	HandleGetObjectSuccessfully(t)
 
 	expected := map[string]string{"Gophercloud-Test": "objects"}
-	actual, err := objects.Get(fake.ServiceClient(), "testContainer", "testObject", nil).ExtractMetadata()
+	actual, err := objects.Get(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", nil).ExtractMetadata()
 	th.AssertNoErr(t, err)
 	th.CheckDeepEquals(t, expected, actual)
 
 	getOpts := objects.GetOpts{
 		Newest: true,
 	}
-	actualHeaders, err := objects.Get(fake.ServiceClient(), "testContainer", "testObject", getOpts).Extract()
+	actualHeaders, err := objects.Get(fake.ServiceClient(), "testContainerWith and %", "testObjectwith and %", getOpts).Extract()
 	th.AssertNoErr(t, err)
 	th.AssertEquals(t, actualHeaders.StaticLargeObject, true)
 }

@@ -1,13 +1,17 @@
 package containers
 
-import "github.com/gophercloud/gophercloud"
+import (
+	"net/url"
+
+	"github.com/gophercloud/gophercloud"
+)
 
 func listURL(c *gophercloud.ServiceClient) string {
 	return c.Endpoint
 }
 
 func createURL(c *gophercloud.ServiceClient, container string) string {
-	return c.ServiceURL(container)
+	return c.ServiceURL(url.PathEscape(container))
 }
 
 func getURL(c *gophercloud.ServiceClient, container string) string {

@@ -1,15 +1,17 @@
 package objects
 
 import (
+	"net/url"
+
 	"github.com/gophercloud/gophercloud"
 )
 
 func listURL(c *gophercloud.ServiceClient, container string) string {
-	return c.ServiceURL(container)
+	return c.ServiceURL(url.PathEscape(container))
 }
 
 func copyURL(c *gophercloud.ServiceClient, container, object string) string {
-	return c.ServiceURL(container, object)
+	return c.ServiceURL(url.PathEscape(container), url.PathEscape(object))
 }
 
 func createURL(c *gophercloud.ServiceClient, container, object string) string {
