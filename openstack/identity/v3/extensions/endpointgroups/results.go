@@ -73,3 +73,21 @@ type CheckProjectAssociationResult struct {
 type DeleteProjectAssociationResult struct {
 	gophercloud.ErrResult
 }
+
+// CreateResult is the response from a Create operation. Call its Extract method
+// to interpret it as an Endpoint Group.
+type CreateResult struct {
+	commonResult
+}
+
+// UpdateResult is the response from an Update operation. Call its Extract
+// method to interpret it as an Endpoint Group.
+type UpdateResult struct {
+	commonResult
+}
+
+// DeleteResult is the response from a Delete operation. Call its ExtractErr to
+// determine if the request succeeded or failed.
+type DeleteResult struct {
+	gophercloud.ErrResult
+}
