@@ -11,14 +11,26 @@ func rootURL(client *gophercloud.ServiceClient) string {
 	return client.ServiceURL(endpointGroupPath)
 }
 
-func resourceURL(client *gophercloud.ServiceClient, endointGroupID string) string {
-	return client.ServiceURL(endpointGroupPath, endointGroupID)
+func resourceURL(client *gophercloud.ServiceClient, endpointGroupID string) string {
+	return client.ServiceURL(endpointGroupPath, endpointGroupID)
 }
 
-func projectAssociationURL(client *gophercloud.ServiceClient, endpointGroupId string, projectId string) string {
-	return client.ServiceURL(endpointGroupPath, endpointGroupId, "projects", projectId)
+func projectAssociationURL(client *gophercloud.ServiceClient, endpointGroupID string, projectID string) string {
+	return client.ServiceURL(endpointGroupPath, endpointGroupID, "projects", projectID)
 }
 
-func listEndpointGroupsAssociationURL(client *gophercloud.ServiceClient, projectId string) string {
-	return client.ServiceURL(endpointGroupsAssociationPath, projectId, "endpoint_groups")
+func listEndpointGroupsAssociationURL(client *gophercloud.ServiceClient, projectID string) string {
+	return client.ServiceURL(endpointGroupsAssociationPath, projectID, "endpoint_groups")
+}
+
+func createURL(client *gophercloud.ServiceClient) string {
+	return client.ServiceURL(endpointGroupPath)
+}
+
+func updateURL(client *gophercloud.ServiceClient, endpointGroupID string) string {
+	return client.ServiceURL(endpointGroupPath, endpointGroupID)
+}
+
+func deleteURL(client *gophercloud.ServiceClient, endpointGroupID string) string {
+	return client.ServiceURL(endpointGroupPath, endpointGroupID)
 }
