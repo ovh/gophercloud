@@ -36,7 +36,7 @@ type ListOpts struct {
 	NotTags        string `q:"not-tags"`
 	NotTagsAny     string `q:"not-tags-any"`
 	NetworkType    string `q:"provider:network_type"`
-	SegmentationID int    `q:"provider:segmentation_id"`
+	SegmentationID *int   `q:"provider:segmentation_id"`
 }
 
 // ToNetworkListQuery formats a ListOpts into a query string.
