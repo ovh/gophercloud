@@ -85,7 +85,7 @@ type CreateOpts struct {
 	ProjectID             string   `json:"project_id,omitempty"`
 	AvailabilityZoneHints []string `json:"availability_zone_hints,omitempty"`
 	NetworkType           string   `json:"provider:network_type,omitempty"`
-	SegmentationID        int      `json:"provider:segmentation_id,omitempty"`
+	SegmentationID        *int      `json:"provider:segmentation_id,omitempty"`
 }
 
 // ToNetworkCreateMap builds a request body from CreateOpts.
