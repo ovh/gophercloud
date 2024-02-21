@@ -75,6 +75,10 @@ type Volume struct {
 	ConsistencyGroupID string `json:"consistencygroup_id"`
 	// Multiattach denotes if the volume is multi-attach capable.
 	Multiattach bool `json:"multiattach"`
+	// Host is the identifier of the host holding the volume.
+	Host string `json:"os-vol-host-attr:host"`
+	// TenantID is the id of the project that owns the volume.
+	TenantID string `json:"os-vol-tenant-attr:tenant_id"`
 }
 
 func (r *Volume) UnmarshalJSON(b []byte) error {

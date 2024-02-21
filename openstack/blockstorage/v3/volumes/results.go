@@ -82,6 +82,10 @@ type Volume struct {
 	Multiattach bool `json:"multiattach"`
 	// Image metadata entries, only included for volumes that were created from an image, or from a snapshot of a volume originally created from an image.
 	VolumeImageMetadata map[string]string `json:"volume_image_metadata"`
+	// Host is the identifier of the host holding the volume.
+	Host string `json:"os-vol-host-attr:host"`
+	// TenantID is the id of the project that owns the volume.
+	TenantID string `json:"os-vol-tenant-attr:tenant_id"`
 }
 
 // UnmarshalJSON another unmarshalling function
