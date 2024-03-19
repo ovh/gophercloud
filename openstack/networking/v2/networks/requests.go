@@ -1,6 +1,8 @@
 package networks
 
 import (
+	"fmt"
+
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/pagination"
 )
@@ -17,22 +19,24 @@ type ListOptsBuilder interface {
 // by a particular network attribute. SortDir sets the direction, and is either
 // `asc' or `desc'. Marker and Limit are used for pagination.
 type ListOpts struct {
-	Status       string `q:"status"`
-	Name         string `q:"name"`
-	Description  string `q:"description"`
-	AdminStateUp *bool  `q:"admin_state_up"`
-	TenantID     string `q:"tenant_id"`
-	ProjectID    string `q:"project_id"`
-	Shared       *bool  `q:"shared"`
-	ID           string `q:"id"`
-	Marker       string `q:"marker"`
-	Limit        int    `q:"limit"`
-	SortKey      string `q:"sort_key"`
-	SortDir      string `q:"sort_dir"`
-	Tags         string `q:"tags"`
-	TagsAny      string `q:"tags-any"`
-	NotTags      string `q:"not-tags"`
-	NotTagsAny   string `q:"not-tags-any"`
+	Status         string `q:"status"`
+	Name           string `q:"name"`
+	Description    string `q:"description"`
+	AdminStateUp   *bool  `q:"admin_state_up"`
+	TenantID       string `q:"tenant_id"`
+	ProjectID      string `q:"project_id"`
+	Shared         *bool  `q:"shared"`
+	ID             string `q:"id"`
+	Marker         string `q:"marker"`
+	Limit          int    `q:"limit"`
+	SortKey        string `q:"sort_key"`
+	SortDir        string `q:"sort_dir"`
+	Tags           string `q:"tags"`
+	TagsAny        string `q:"tags-any"`
+	NotTags        string `q:"not-tags"`
+	NotTagsAny     string `q:"not-tags-any"`
+	NetworkType    string `q:"provider:network_type"`
+	SegmentationID *int   `q:"provider:segmentation_id"`
 }
 
 // ToNetworkListQuery formats a ListOpts into a query string.
@@ -80,6 +84,8 @@ type CreateOpts struct {
 	TenantID              string   `json:"tenant_id,omitempty"`
 	ProjectID             string   `json:"project_id,omitempty"`
 	AvailabilityZoneHints []string `json:"availability_zone_hints,omitempty"`
+	NetworkType           string   `json:"provider:network_type,omitempty"`
+	SegmentationID        *int      `json:"provider:segmentation_id,omitempty"`
 }
 
 // ToNetworkCreateMap builds a request body from CreateOpts.
@@ -117,6 +123,11 @@ type UpdateOpts struct {
 	Name         *string `json:"name,omitempty"`
 	Description  *string `json:"description,omitempty"`
 	Shared       *bool   `json:"shared,omitempty"`
+
+	// RevisionNumber implements extension:standard-attr-revisions. If != "" it
+	// will set revision_number=%s. If the revision number does not match, the
+	// update will fail.
+	RevisionNumber *int `json:"-" h:"If-Match"`
 }
 
 // ToNetworkUpdateMap builds a request body from UpdateOpts.
@@ -132,8 +143,19 @@ func Update(c *gophercloud.ServiceClient, networkID string, opts UpdateOptsBuild
 		r.Err = err
 		return
 	}
+	h, err := gophercloud.BuildHeaders(opts)
+	if err != nil {
+		r.Err = err
+		return
+	}
+	for k := range h {
+		if k == "If-Match" {
+			h[k] = fmt.Sprintf("revision_number=%s", h[k])
+		}
+	}
 	resp, err := c.Put(updateURL(c, networkID), b, &r.Body, &gophercloud.RequestOpts{
-		OkCodes: []int{200, 201},
+		MoreHeaders: h,
+		OkCodes:     []int{200, 201},
 	})
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return

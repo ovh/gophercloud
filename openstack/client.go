@@ -363,13 +363,17 @@ func initClientOpts(client *gophercloud.ProviderClient, eo gophercloud.EndpointO
 // NewBareMetalV1 creates a ServiceClient that may be used with the v1
 // bare metal package.
 func NewBareMetalV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
-	return initClientOpts(client, eo, "baremetal")
+	sc, err := initClientOpts(client, eo, "baremetal")
+	if !strings.HasSuffix(sc.Endpoint, "v1/") {
+		sc.ResourceBase = sc.Endpoint + "v1/"
+	}
+	return sc, err
 }
 
 // NewBareMetalIntrospectionV1 creates a ServiceClient that may be used with the v1
 // bare metal introspection package.
 func NewBareMetalIntrospectionV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
-	return initClientOpts(client, eo, "baremetal-inspector")
+	return initClientOpts(client, eo, "baremetal-introspection")
 }
 
 // NewObjectStorageV1 creates a ServiceClient that may be used with the v1

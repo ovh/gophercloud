@@ -3,6 +3,7 @@ package containers
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +31,10 @@ type ContainerPage struct {
 
 // IsEmpty returns true if a ListResult contains no container names.
 func (r ContainerPage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	names, err := ExtractNames(r)
 	return len(names) == 0, err
 }
@@ -105,15 +110,17 @@ type GetHeader struct {
 	TempURLKey       string    `json:"X-Container-Meta-Temp-URL-Key"`
 	TempURLKey2      string    `json:"X-Container-Meta-Temp-URL-Key-2"`
 	Timestamp        float64   `json:"X-Timestamp,string"`
+	VersionsEnabled  bool      `json:"-"`
 }
 
 func (r *GetHeader) UnmarshalJSON(b []byte) error {
 	type tmp GetHeader
 	var s struct {
 		tmp
-		Write string                  `json:"X-Container-Write"`
-		Read  string                  `json:"X-Container-Read"`
-		Date  gophercloud.JSONRFC1123 `json:"Date"`
+		Write           string                  `json:"X-Container-Write"`
+		Read            string                  `json:"X-Container-Read"`
+		Date            gophercloud.JSONRFC1123 `json:"Date"`
+		VersionsEnabled string                  `json:"X-Versions-Enabled"`
 	}
 
 	err := json.Unmarshal(b, &s)
@@ -127,6 +134,12 @@ func (r *GetHeader) UnmarshalJSON(b []byte) error {
 	r.Write = strings.Split(s.Write, ",")
 
 	r.Date = time.Time(s.Date)
+
+	if s.VersionsEnabled != "" {
+		// custom unmarshaller here is required to handle boolean value
+		// that starts with a capital letter
+		r.VersionsEnabled, err = strconv.ParseBool(s.VersionsEnabled)
+	}
 
 	return err
 }

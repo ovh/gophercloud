@@ -214,3 +214,13 @@ type ForceDeleteResult struct {
 type ChangeTypeResult struct {
 	gophercloud.ErrResult
 }
+
+// ReImageResult contains the response body and error from a ReImage request.
+type ReImageResult struct {
+	gophercloud.ErrResult
+}
+
+// ResetStatusResult contains the response error from a ResetStatus request.
+type ResetStatusResult struct {
+	gophercloud.ErrResult
+}

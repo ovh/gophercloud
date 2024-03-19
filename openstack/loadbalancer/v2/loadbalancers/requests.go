@@ -107,6 +107,9 @@ type CreateOpts struct {
 	// The IP address of the Loadbalancer.
 	VipAddress string `json:"vip_address,omitempty"`
 
+	// The ID of the QoS Policy which will apply to the Virtual IP
+	VipQosPolicyID string `json:"vip_qos_policy_id,omitempty"`
+
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
@@ -137,6 +140,10 @@ type CreateOpts struct {
 
 	// Tags is a set of resource tags.
 	Tags []string `json:"tags,omitempty"`
+
+	// The additional ips of the loadbalancer. Subnets must all belong to the same network as the primary VIP.
+	// New in version 2.26
+	AdditionalVIps []AdditionalVip `json:"additional_vips,omitempty"`
 }
 
 // ToLoadBalancerCreateMap builds a request body from CreateOpts.
@@ -184,6 +191,9 @@ type UpdateOpts struct {
 	// The administrative state of the Loadbalancer. A valid value is true (UP)
 	// or false (DOWN).
 	AdminStateUp *bool `json:"admin_state_up,omitempty"`
+
+	// The ID of the QoS Policy which will apply to the Virtual IP
+	VipQosPolicyID *string `json:"vip_qos_policy_id,omitempty"`
 
 	// Tags is a set of resource tags.
 	Tags *[]string `json:"tags,omitempty"`

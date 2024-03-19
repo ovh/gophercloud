@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	fake "github.com/gophercloud/gophercloud/openstack/networking/v2/common"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/extradhcpopts"
@@ -30,7 +31,7 @@ func TestList(t *testing.T) {
 
 	count := 0
 
-	ports.List(fake.ServiceClient(), ports.ListOpts{}).EachPage(func(page pagination.Page) (bool, error) {
+	err := ports.List(fake.ServiceClient(), ports.ListOpts{}).EachPage(func(page pagination.Page) (bool, error) {
 		count++
 		actual, err := ports.ExtractPorts(page)
 		if err != nil {
@@ -56,6 +57,8 @@ func TestList(t *testing.T) {
 				ID:             "d80b1a3b-4fc1-49f3-952e-1e2ab7081d8b",
 				SecurityGroups: []string{},
 				DeviceID:       "9ae135f4-b6e0-4dad-9e91-3c223e385824",
+				CreatedAt:      time.Date(2019, time.June, 30, 4, 15, 37, 0, time.UTC),
+				UpdatedAt:      time.Date(2019, time.June, 30, 5, 18, 49, 0, time.UTC),
 			},
 		}
 
@@ -63,6 +66,8 @@ func TestList(t *testing.T) {
 
 		return true, nil
 	})
+
+	th.AssertNoErr(t, err)
 
 	if count != 1 {
 		t.Errorf("Expected 1 page, got %d", count)
@@ -131,6 +136,8 @@ func TestGet(t *testing.T) {
 	th.AssertDeepEquals(t, n.SecurityGroups, []string{})
 	th.AssertEquals(t, n.Status, "ACTIVE")
 	th.AssertEquals(t, n.DeviceID, "5e3898d7-11be-483e-9732-b2f5eccd2b2e")
+	th.AssertEquals(t, n.CreatedAt, time.Date(2019, time.June, 30, 4, 15, 37, 0, time.UTC))
+	th.AssertEquals(t, n.UpdatedAt, time.Date(2019, time.June, 30, 5, 18, 49, 0, time.UTC))
 }
 
 func TestGetWithExtensions(t *testing.T) {
@@ -307,6 +314,105 @@ func TestCreateWithNoSecurityGroup(t *testing.T) {
 	})
 }
 
+func TestCreateWithPropagateUplinkStatus(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/ports", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, CreatePropagateUplinkStatusRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprintf(w, CreatePropagateUplinkStatusResponse)
+	})
+
+	asu := true
+	propagateUplinkStatus := true
+	options := ports.CreateOpts{
+		Name:         "private-port",
+		AdminStateUp: &asu,
+		NetworkID:    "a87cc70a-3e15-4acf-8205-9b711a3531b7",
+		FixedIPs: []ports.IP{
+			{SubnetID: "a0304c3a-4f08-4c43-88af-d796509c97d2", IPAddress: "10.0.0.2"},
+		},
+		PropagateUplinkStatus: &propagateUplinkStatus,
+	}
+	n, err := ports.Create(fake.ServiceClient(), options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, n.Status, "DOWN")
+	th.AssertEquals(t, n.Name, "private-port")
+	th.AssertEquals(t, n.AdminStateUp, true)
+	th.AssertEquals(t, n.NetworkID, "a87cc70a-3e15-4acf-8205-9b711a3531b7")
+	th.AssertEquals(t, n.TenantID, "d6700c0c9ffa4f1cb322cd4a1f3906fa")
+	th.AssertEquals(t, n.DeviceOwner, "")
+	th.AssertEquals(t, n.MACAddress, "fa:16:3e:c9:cb:f0")
+	th.AssertDeepEquals(t, n.FixedIPs, []ports.IP{
+		{SubnetID: "a0304c3a-4f08-4c43-88af-d796509c97d2", IPAddress: "10.0.0.2"},
+	})
+	th.AssertEquals(t, n.ID, "65c0ee9f-d634-4522-8954-51021b570b0d")
+	th.AssertEquals(t, n.PropagateUplinkStatus, propagateUplinkStatus)
+}
+
+func TestCreateWithValueSpecs(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/ports", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, CreateValueSpecRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprintf(w, CreateValueSpecResponse)
+	})
+
+	asu := true
+	options := ports.CreateOpts{
+		Name:         "private-port",
+		AdminStateUp: &asu,
+		NetworkID:    "a87cc70a-3e15-4acf-8205-9b711a3531b7",
+		FixedIPs: []ports.IP{
+			{SubnetID: "a0304c3a-4f08-4c43-88af-d796509c97d2", IPAddress: "10.0.0.2"},
+		},
+		SecurityGroups: &[]string{"foo"},
+		AllowedAddressPairs: []ports.AddressPair{
+			{IPAddress: "10.0.0.4", MACAddress: "fa:16:3e:c9:cb:f0"},
+		},
+		ValueSpecs: &map[string]string{
+			"key": "value",
+		},
+	}
+	n, err := ports.Create(fake.ServiceClient(), options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, n.Status, "DOWN")
+	th.AssertEquals(t, n.Name, "private-port")
+	th.AssertEquals(t, n.AdminStateUp, true)
+	th.AssertEquals(t, n.NetworkID, "a87cc70a-3e15-4acf-8205-9b711a3531b7")
+	th.AssertEquals(t, n.TenantID, "d6700c0c9ffa4f1cb322cd4a1f3906fa")
+	th.AssertEquals(t, n.DeviceOwner, "")
+	th.AssertEquals(t, n.MACAddress, "fa:16:3e:c9:cb:f0")
+	th.AssertDeepEquals(t, n.FixedIPs, []ports.IP{
+		{SubnetID: "a0304c3a-4f08-4c43-88af-d796509c97d2", IPAddress: "10.0.0.2"},
+	})
+	th.AssertEquals(t, n.ID, "65c0ee9f-d634-4522-8954-51021b570b0d")
+	th.AssertDeepEquals(t, n.SecurityGroups, []string{"f0ac4394-7e4a-4409-9701-ba8be283dbc3"})
+	th.AssertDeepEquals(t, n.AllowedAddressPairs, []ports.AddressPair{
+		{IPAddress: "10.0.0.4", MACAddress: "fa:16:3e:c9:cb:f0"},
+	})
+	th.AssertDeepEquals(t, n.ValueSpecs, map[string]string{"key": "value"})
+}
+
 func TestRequiredCreateOpts(t *testing.T) {
 	res := ports.Create(fake.ServiceClient(), ports.CreateOpts{})
 	if res.Err == nil {
@@ -445,6 +551,63 @@ func TestUpdateOmitSecurityGroups(t *testing.T) {
 	th.AssertDeepEquals(t, s.SecurityGroups, []string{"f0ac4394-7e4a-4409-9701-ba8be283dbc3"})
 }
 
+func TestUpdatePropagateUplinkStatus(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/ports/65c0ee9f-d634-4522-8954-51021b570b0d", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, UpdatePropagateUplinkStatusRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, UpdatePropagateUplinkStatusResponse)
+	})
+
+	propagateUplinkStatus := true
+	options := ports.UpdateOpts{
+		PropagateUplinkStatus: &propagateUplinkStatus,
+	}
+
+	s, err := ports.Update(fake.ServiceClient(), "65c0ee9f-d634-4522-8954-51021b570b0d", options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertDeepEquals(t, s.PropagateUplinkStatus, propagateUplinkStatus)
+}
+
+func TestUpdateValueSpecs(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/ports/65c0ee9f-d634-4522-8954-51021b570b0d", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, UpdateValueSpecsRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, UpdateValueSpecsResponse)
+	})
+
+	options := ports.UpdateOpts{
+		ValueSpecs: &map[string]string{
+			"key": "value",
+		},
+	}
+
+	s, err := ports.Update(fake.ServiceClient(), "65c0ee9f-d634-4522-8954-51021b570b0d", options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertDeepEquals(t, s.ValueSpecs, map[string]string{"key": "value"})
+}
+
 func TestUpdatePortSecurity(t *testing.T) {
 	th.SetupHTTP()
 	defer th.TeardownHTTP()
@@ -480,6 +643,57 @@ func TestUpdatePortSecurity(t *testing.T) {
 	th.AssertEquals(t, portWithExt.Status, "DOWN")
 	th.AssertEquals(t, portWithExt.Name, "private-port")
 	th.AssertEquals(t, portWithExt.PortSecurityEnabled, false)
+}
+
+func TestUpdateRevision(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/ports/65c0ee9f-d634-4522-8954-51021b570b0d", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestHeaderUnset(t, r, "If-Match")
+		th.TestJSONRequest(t, r, UpdateRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, UpdateResponse)
+	})
+	th.Mux.HandleFunc("/v2.0/ports/65c0ee9f-d634-4522-8954-51021b570b0e", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestHeader(t, r, "If-Match", "revision_number=42")
+		th.TestJSONRequest(t, r, UpdateRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, UpdateResponse)
+	})
+
+	name := "new_port_name"
+	options := ports.UpdateOpts{
+		Name: &name,
+		FixedIPs: []ports.IP{
+			{SubnetID: "a0304c3a-4f08-4c43-88af-d796509c97d2", IPAddress: "10.0.0.3"},
+		},
+		SecurityGroups: &[]string{"f0ac4394-7e4a-4409-9701-ba8be283dbc3"},
+		AllowedAddressPairs: &[]ports.AddressPair{
+			{IPAddress: "10.0.0.4", MACAddress: "fa:16:3e:c9:cb:f0"},
+		},
+	}
+	_, err := ports.Update(fake.ServiceClient(), "65c0ee9f-d634-4522-8954-51021b570b0d", options).Extract()
+	th.AssertNoErr(t, err)
+
+	revisionNumber := 42
+	options.RevisionNumber = &revisionNumber
+	_, err = ports.Update(fake.ServiceClient(), "65c0ee9f-d634-4522-8954-51021b570b0e", options).Extract()
+	th.AssertNoErr(t, err)
 }
 
 func TestRemoveSecurityGroups(t *testing.T) {

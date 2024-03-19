@@ -1,31 +1,42 @@
 on: [push, pull_request]
 name: Unit Testing
+permissions:
+  contents: read
+
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    permissions:
+      checks: write  # for coverallsapp/github-action to create a new check based on the results
+      contents: read  # for actions/checkout to fetch code
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         go-version:
-          - "1.15"
+          - "1.14"
+          - "1"
 
     env:
       GO111MODULE: "on"
 
     steps:
-      - name: Setup Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+
+      - name: Setup Go v1
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1
+
+      - name: Install tools
+        run: |
+          go install github.com/wadey/gocovmerge@master
+          go install golang.org/x/tools/cmd/goimports@latest
+
+      - if: ${{ matrix.go-version != '1' }}
+        name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
-
-      - uses: actions/checkout@v2
-
-      - name: Setup environment
-        run: |
-          go get golang.org/x/crypto/ssh
-          go get github.com/wadey/gocovmerge
-          go get github.com/mattn/goveralls
-          go get golang.org/x/tools/cmd/goimports
 
       - name: Run go vet
         run: |
@@ -33,10 +44,27 @@ jobs:
 
       - name: Run unit tests
         run: |
+          go version
           ./script/coverage
-          ./script/unittest
           ./script/format
+          ./script/unittest -v
 
-      - uses: shogo82148/actions-goveralls@v1
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
         with:
-          path-to-profile: cover.out
+          file: cover.out
+          flag-name: Go-${{ matrix.go-version }}
+          parallel: true
+
+  finish:
+    permissions:
+      checks: write  # for coverallsapp/github-action to create a new check based on the results
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true
+        carryforward: Go-${{ join(matrix.go-version.*, '-') }}

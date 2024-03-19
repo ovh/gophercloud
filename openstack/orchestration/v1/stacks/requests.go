@@ -1,6 +1,7 @@
 package stacks
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gophercloud/gophercloud"
@@ -89,7 +90,7 @@ func (opts CreateOpts) ToStackCreateMap() (map[string]interface{}, error) {
 func Create(c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToStackCreateMap()
 	if err != nil {
-		r.Err = err
+		r.Err = fmt.Errorf("error creating the options map: %w", err)
 		return
 	}
 	resp, err := c.Post(createURL(c), b, &r.Body, nil)
@@ -404,7 +405,8 @@ func toStackUpdateMap(opts UpdateOpts) (map[string]interface{}, error) {
 }
 
 // Update accepts an UpdateOpts struct and updates an existing stack using the
-//  http PUT verb with the values provided. opts.TemplateOpts is required.
+//
+//	http PUT verb with the values provided. opts.TemplateOpts is required.
 func Update(c *gophercloud.ServiceClient, stackName, stackID string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToStackUpdateMap()
 	if err != nil {
@@ -417,7 +419,8 @@ func Update(c *gophercloud.ServiceClient, stackName, stackID string, opts Update
 }
 
 // Update accepts an UpdateOpts struct and updates an existing stack using the
-//  http PATCH verb with the values provided. opts.TemplateOpts is not required.
+//
+//	http PATCH verb with the values provided. opts.TemplateOpts is not required.
 func UpdatePatch(c *gophercloud.ServiceClient, stackName, stackID string, opts UpdatePatchOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToStackUpdatePatchMap()
 	if err != nil {

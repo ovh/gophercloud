@@ -98,6 +98,10 @@ type ServicePage struct {
 
 // IsEmpty determines whether or not a page of Services contains any results.
 func (page ServicePage) IsEmpty() (bool, error) {
+	if page.StatusCode == 204 {
+		return true, nil
+	}
+
 	services, err := ExtractServices(page)
 	return len(services) == 0, err
 }
@@ -108,4 +112,10 @@ func ExtractServices(r pagination.Page) ([]Service, error) {
 	}
 	err := (r.(ServicePage)).ExtractInto(&s)
 	return s.Service, err
+}
+
+// DeleteResult is the response from a Delete operation. Call its ExtractErr
+// method to determine if the call succeeded or failed.
+type DeleteResult struct {
+	gophercloud.ErrResult
 }

@@ -8,6 +8,7 @@ import (
 
 	fake "github.com/gophercloud/gophercloud/openstack/networking/v2/common"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/agents"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/layer3/routers"
 	"github.com/gophercloud/gophercloud/pagination"
 	th "github.com/gophercloud/gophercloud/testhelper"
 )
@@ -240,4 +241,183 @@ func TestListBGPSpeakers(t *testing.T) {
 	if count != 1 {
 		t.Errorf("Expected 1 page, got %d", count)
 	}
+}
+
+func TestScheduleBGPSpeaker(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	agentID := "30d76012-46de-4215-aaa1-a1630d01d891"
+	speakerID := "8edb2c68-0654-49a9-b3fe-030f92e3ddf6"
+
+	th.Mux.HandleFunc("/v2.0/agents/"+agentID+"/bgp-drinstances",
+		func(w http.ResponseWriter, r *http.Request) {
+			th.TestMethod(t, r, "POST")
+			th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+			th.TestHeader(t, r, "Content-Type", "application/json")
+			th.TestHeader(t, r, "Accept", "application/json")
+			th.TestJSONRequest(t, r, ScheduleBGPSpeakerRequest)
+
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+		})
+
+	var opts agents.ScheduleBGPSpeakerOpts
+	opts.SpeakerID = speakerID
+	err := agents.ScheduleBGPSpeaker(fake.ServiceClient(), agentID, opts).ExtractErr()
+	th.AssertNoErr(t, err)
+}
+
+func TestRemoveBGPSpeaker(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	agentID := "30d76012-46de-4215-aaa1-a1630d01d891"
+	speakerID := "8edb2c68-0654-49a9-b3fe-030f92e3ddf6"
+
+	th.Mux.HandleFunc("/v2.0/agents/"+agentID+"/bgp-drinstances/"+speakerID,
+		func(w http.ResponseWriter, r *http.Request) {
+			th.TestMethod(t, r, "DELETE")
+			th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+			th.TestHeader(t, r, "Accept", "application/json")
+
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNoContent)
+		})
+
+	err := agents.RemoveBGPSpeaker(fake.ServiceClient(), agentID, speakerID).ExtractErr()
+	th.AssertNoErr(t, err)
+}
+
+func TestListDRAgentHostingBGPSpeakers(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	speakerID := "3f511b1b-d541-45f1-aa98-2e44e8183d4c"
+	th.Mux.HandleFunc("/v2.0/bgp-speakers/"+speakerID+"/bgp-dragents",
+		func(w http.ResponseWriter, r *http.Request) {
+			th.TestMethod(t, r, "GET")
+			th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, ListDRAgentHostingBGPSpeakersResult)
+		})
+
+	count := 0
+	agents.ListDRAgentHostingBGPSpeakers(fake.ServiceClient(), speakerID).EachPage(
+		func(page pagination.Page) (bool, error) {
+			count++
+			actual, err := agents.ExtractAgents(page)
+
+			if err != nil {
+				t.Errorf("Failed to extract agents: %v", err)
+				return false, nil
+			}
+
+			expected := []agents.Agent{BGPAgent1, BGPAgent2}
+			th.CheckDeepEquals(t, expected, actual)
+			return true, nil
+		})
+
+	if count != 1 {
+		t.Errorf("Expected 1 page, got %d", count)
+	}
+}
+
+func TestListL3Routers(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/agents/43583cf5-472e-4dc8-af5b-6aed4c94ee3a/l3-routers", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprintf(w, AgentL3RoutersListResult)
+	})
+
+	s, err := agents.ListL3Routers(fake.ServiceClient(), "43583cf5-472e-4dc8-af5b-6aed4c94ee3a").Extract()
+	th.AssertNoErr(t, err)
+
+	routes := []routers.Route{
+		{
+			NextHop:         "172.24.3.99",
+			DestinationCIDR: "179.24.1.0/24",
+		},
+	}
+
+	var snat bool = true
+	gw := routers.GatewayInfo{
+		EnableSNAT: &snat,
+		NetworkID:  "ae34051f-aa6c-4c75-abf5-50dc9ac99ef3",
+		ExternalFixedIPs: []routers.ExternalFixedIP{
+			{
+				IPAddress: "172.24.4.3",
+				SubnetID:  "b930d7f6-ceb7-40a0-8b81-a425dd994ccf",
+			},
+
+			{
+				IPAddress: "2001:db8::c",
+				SubnetID:  "0c56df5d-ace5-46c8-8f4c-45fa4e334d18",
+			},
+		},
+	}
+
+	var nilSlice []string
+	th.AssertEquals(t, len(s), 2)
+	th.AssertEquals(t, s[0].ID, "915a14a6-867b-4af7-83d1-70efceb146f9")
+	th.AssertEquals(t, s[0].AdminStateUp, true)
+	th.AssertEquals(t, s[0].ProjectID, "0bd18306d801447bb457a46252d82d13")
+	th.AssertEquals(t, s[0].Name, "router2")
+	th.AssertEquals(t, s[0].Status, "ACTIVE")
+	th.AssertEquals(t, s[0].TenantID, "0bd18306d801447bb457a46252d82d13")
+	th.AssertDeepEquals(t, s[0].AvailabilityZoneHints, []string{})
+	th.AssertDeepEquals(t, s[0].Routes, routes)
+	th.AssertDeepEquals(t, s[0].GatewayInfo, gw)
+	th.AssertDeepEquals(t, s[0].Tags, nilSlice)
+	th.AssertEquals(t, s[1].ID, "f8a44de0-fc8e-45df-93c7-f79bf3b01c95")
+	th.AssertEquals(t, s[1].Name, "router1")
+
+}
+
+func TestScheduleL3Router(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/agents/43583cf5-472e-4dc8-af5b-6aed4c94ee3a/l3-routers", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, ScheduleL3RouterRequest)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+	})
+
+	opts := &agents.ScheduleL3RouterOpts{
+		RouterID: "43e66290-79a4-415d-9eb9-7ff7919839e1",
+	}
+	err := agents.ScheduleL3Router(fake.ServiceClient(), "43583cf5-472e-4dc8-af5b-6aed4c94ee3a", opts).ExtractErr()
+	th.AssertNoErr(t, err)
+}
+
+func TestRemoveL3Router(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+
+	th.Mux.HandleFunc("/v2.0/agents/43583cf5-472e-4dc8-af5b-6aed4c94ee3a/l3-routers/43e66290-79a4-415d-9eb9-7ff7919839e1", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "DELETE")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Accept", "application/json")
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	err := agents.RemoveL3Router(fake.ServiceClient(), "43583cf5-472e-4dc8-af5b-6aed4c94ee3a", "43e66290-79a4-415d-9eb9-7ff7919839e1").ExtractErr()
+	th.AssertNoErr(t, err)
 }

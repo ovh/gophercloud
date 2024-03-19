@@ -50,6 +50,9 @@ type NodeGroup struct {
 	ProjectID        string             `json:"project_id"`
 	DockerVolumeSize *int               `json:"docker_volume_size"`
 	Labels           map[string]string  `json:"labels"`
+	LabelsAdded      map[string]string  `json:"labels_added"`
+	LabelsOverridden map[string]string  `json:"labels_overridden"`
+	LabelsSkipped    map[string]string  `json:"labels_skipped"`
 	Links            []gophercloud.Link `json:"links"`
 	FlavorID         string             `json:"flavor_id"`
 	ImageID          string             `json:"image_id"`
@@ -83,6 +86,10 @@ func (r NodeGroupPage) NextPageURL() (string, error) {
 }
 
 func (r NodeGroupPage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	s, err := ExtractNodeGroups(r)
 	return len(s) == 0, err
 }

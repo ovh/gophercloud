@@ -11,15 +11,20 @@ import (
 // types of persistence are supported:
 //
 // SOURCE_IP:   With this mode, all connections originating from the same source
-//              IP address, will be handled by the same member of the pool.
+//
+//	IP address, will be handled by the same member of the pool.
+//
 // HTTP_COOKIE: With this persistence mode, the load balancing function will
-//              create a cookie on the first request from a client. Subsequent
-//              requests containing the same cookie value will be handled by
-//              the same member of the pool.
+//
+//	create a cookie on the first request from a client. Subsequent
+//	requests containing the same cookie value will be handled by
+//	the same member of the pool.
+//
 // APP_COOKIE:  With this persistence mode, the load balancing function will
-//              rely on a cookie established by the backend application. All
-//              requests carrying the same cookie value will be handled by the
-//              same member of the pool.
+//
+//	rely on a cookie established by the backend application. All
+//	requests carrying the same cookie value will be handled by the
+//	same member of the pool.
 type SessionPersistence struct {
 	// Type is the type of persistence mode.
 	Type string `json:"type"`
@@ -103,6 +108,10 @@ func (r VIPPage) NextPageURL() (string, error) {
 
 // IsEmpty checks whether a VIPPage struct is empty.
 func (r VIPPage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	is, err := ExtractVIPs(r)
 	return len(is) == 0, err
 }

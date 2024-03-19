@@ -74,6 +74,7 @@ type ClusterTemplate struct {
 	UpdatedAt           time.Time          `json:"updated_at"`
 	UserID              string             `json:"user_id"`
 	VolumeDriver        string             `json:"volume_driver"`
+	Hidden              bool               `json:"hidden"`
 }
 
 // ClusterTemplatePage is the page returned by a pager when traversing over a
@@ -98,6 +99,10 @@ func (r ClusterTemplatePage) NextPageURL() (string, error) {
 
 // IsEmpty checks whether a ClusterTemplatePage struct is empty.
 func (r ClusterTemplatePage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	is, err := ExtractClusterTemplates(r)
 	return len(is) == 0, err
 }

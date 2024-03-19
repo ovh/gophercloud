@@ -11,6 +11,7 @@ type Policy struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	TenantID    string   `json:"tenant_id"`
+	ProjectID   string   `json:"project_id"`
 	Audited     bool     `json:"audited"`
 	Shared      bool     `json:"shared"`
 	Rules       []string `json:"firewall_rules,omitempty"`
@@ -62,6 +63,10 @@ func (r PolicyPage) NextPageURL() (string, error) {
 
 // IsEmpty checks whether a PolicyPage struct is empty.
 func (r PolicyPage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	is, err := ExtractPolicies(r)
 	return len(is) == 0, err
 }

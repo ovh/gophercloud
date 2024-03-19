@@ -47,6 +47,9 @@ type LoadBalancer struct {
 	// Loadbalancer address.
 	VipNetworkID string `json:"vip_network_id"`
 
+	// The ID of the QoS Policy which will apply to the Virtual IP
+	VipQosPolicyID string `json:"vip_qos_policy_id"`
+
 	// The unique ID for the LoadBalancer.
 	ID string `json:"id"`
 
@@ -74,6 +77,16 @@ type LoadBalancer struct {
 	// Tags is a list of resource tags. Tags are arbitrarily defined strings
 	// attached to the resource.
 	Tags []string `json:"tags"`
+
+	// The additional ips of the loadbalancer. Subnets must all belong to the same network as the primary VIP.
+	// New in version 2.26
+	AdditionalVIps []AdditionalVip `json:"additional_vips"`
+}
+
+// AdditionalVip represent additional ip of a loadbalancer. IpAddress field is optional.
+type AdditionalVip struct {
+	SubnetID  string `json:"subnet_id"`
+	IPAddress string `json:"ip_address,omitempty"`
 }
 
 func (r *LoadBalancer) UnmarshalJSON(b []byte) error {
@@ -158,6 +171,10 @@ func (r LoadBalancerPage) NextPageURL() (string, error) {
 
 // IsEmpty checks whether a LoadBalancerPage struct is empty.
 func (r LoadBalancerPage) IsEmpty() (bool, error) {
+	if r.StatusCode == 204 {
+		return true, nil
+	}
+
 	is, err := ExtractLoadBalancers(r)
 	return len(is) == 0, err
 }
