@@ -39,7 +39,7 @@ func revokeAccessURL(c *gophercloud.ServiceClient, id string) string {
 }
 
 func listAccessRightsURL(c *gophercloud.ServiceClient, id string) string {
-	return c.ServiceURL("shares", id, "action")
+	return c.ServiceURL("share-access-rules") + "?share_id=" + id
 }
 
 func extendURL(c *gophercloud.ServiceClient, id string) string {

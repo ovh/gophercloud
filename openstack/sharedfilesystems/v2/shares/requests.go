@@ -274,10 +274,7 @@ func RevokeAccess(client *gophercloud.ServiceClient, id string, opts RevokeAcces
 // the AccessRight slice from the response, call the Extract method on the ListAccessRightsResult.
 // Client must have Microversion set; minimum supported microversion for ListAccessRights is 2.7.
 func ListAccessRights(client *gophercloud.ServiceClient, id string) (r ListAccessRightsResult) {
-	requestBody := map[string]interface{}{"access_list": nil}
-	resp, err := client.Post(listAccessRightsURL(client, id), requestBody, &r.Body, &gophercloud.RequestOpts{
-		OkCodes: []int{200},
-	})
+	resp, err := client.Get(listAccessRightsURL(client, id), &r.Body, nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
 }
