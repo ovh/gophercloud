@@ -285,6 +285,25 @@ type AccessRight struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+func (r *AccessRight) UnmarshalJSON(b []byte) error {
+	type tmp AccessRight
+	var s struct {
+		tmp
+		CreatedAt gophercloud.JSONRFC3339MilliNoZ `json:"created_at"`
+		UpdatedAt gophercloud.JSONRFC3339MilliNoZ `json:"updated_at"`
+	}
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return err
+	}
+	*r = AccessRight(s.tmp)
+
+	r.CreatedAt = time.Time(s.CreatedAt)
+	r.UpdatedAt = time.Time(s.UpdatedAt)
+
+	return nil
+}
+
 // Extract will get the GrantAccess object from the commonResult
 func (r GrantAccessResult) Extract() (*AccessRight, error) {
 	var s struct {
