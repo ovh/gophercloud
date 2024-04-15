@@ -272,9 +272,17 @@ func RevokeAccess(client *gophercloud.ServiceClient, id string, opts RevokeAcces
 
 // ListAccessRights lists all access rules assigned to a Share based on its id. To extract
 // the AccessRight slice from the response, call the Extract method on the ListAccessRightsResult.
-// Client must have Microversion set; minimum supported microversion for ListAccessRights is 2.7.
+// Client must have Microversion set; minimum supported microversion for ListAccessRights is 2.45.
 func ListAccessRights(client *gophercloud.ServiceClient, id string) (r ListAccessRightsResult) {
 	resp, err := client.Get(listAccessRightsURL(client, id), &r.Body, nil)
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
+// GetAccessRight will get shareID's export location by an ID.
+// Client must have Microversion set; minimum supported microversion for ListAccessRights is 2.45.
+func GetAccessRight(client *gophercloud.ServiceClient, id string) (r GetAccessRightResult) {
+	resp, err := client.Get(getAccessRightURL(client, id), &r.Body, nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
 }

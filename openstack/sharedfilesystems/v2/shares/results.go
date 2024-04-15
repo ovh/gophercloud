@@ -279,6 +279,10 @@ type AccessRight struct {
 	State string `json:"state,omitempty"`
 	// The access rule ID.
 	ID string `json:"id"`
+	// Timestamp when the share was created
+	CreatedAt time.Time `json:"created_at"`
+	// Timestamp when the share was updated
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Extract will get the GrantAccess object from the commonResult
@@ -311,6 +315,20 @@ func (r ListAccessRightsResult) Extract() ([]AccessRight, error) {
 
 // ListAccessRightsResult contains the result body and error from a ListAccessRights request.
 type ListAccessRightsResult struct {
+	gophercloud.Result
+}
+
+// Extract will get a slice of AccessRight objects from the commonResult
+func (r GetAccessRightResult) Extract() (AccessRight, error) {
+	var s struct {
+		AccessRight AccessRight `json:"access"`
+	}
+	err := r.ExtractInto(&s)
+	return s.AccessRight, err
+}
+
+// ListAccessRightsResult contains the result body and error from a ListAccessRights request.
+type GetAccessRightResult struct {
 	gophercloud.Result
 }
 
