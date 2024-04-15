@@ -42,6 +42,10 @@ func listAccessRightsURL(c *gophercloud.ServiceClient, id string) string {
 	return c.ServiceURL("share-access-rules") + "?share_id=" + id
 }
 
+func getAccessRightURL(c *gophercloud.ServiceClient, id string) string {
+	return c.ServiceURL("share-access-rules", id)
+}
+
 func extendURL(c *gophercloud.ServiceClient, id string) string {
 	return c.ServiceURL("shares", id, "action")
 }
