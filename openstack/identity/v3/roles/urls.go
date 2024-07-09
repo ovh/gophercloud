@@ -37,3 +37,11 @@ func listAssignmentsOnResourceURL(client *gophercloud.ServiceClient, targetType,
 func assignURL(client *gophercloud.ServiceClient, targetType, targetID, actorType, actorID, roleID string) string {
 	return client.ServiceURL(targetType, targetID, actorType, actorID, rolePath, roleID)
 }
+
+func listInferencesOnRoleURL(client *gophercloud.ServiceClient, roleID string) string {
+	return client.ServiceURL(rolePath, roleID, "implies")
+}
+
+func listInferencesURL(client *gophercloud.ServiceClient) string {
+	return client.ServiceURL("role_inferences")
+}

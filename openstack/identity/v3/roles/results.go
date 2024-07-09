@@ -227,3 +227,34 @@ type AssignmentResult struct {
 type UnassignmentResult struct {
 	gophercloud.ErrResult
 }
+
+type RoleInference struct {
+	PriorRole Role   `json:"prior_role"`
+	Implies   []Role `json:"implies"`
+}
+
+type InferenceResult struct {
+	gophercloud.Result
+}
+
+// Extract interprets role inferences results as a slice of RoleInference.
+func (r InferenceResult) Extract() (RoleInference, error) {
+	var s struct {
+		RoleInference RoleInference `json:"role_inference"`
+	}
+	err := r.ExtractInto(&s)
+	return s.RoleInference, err
+}
+
+type InferencesResult struct {
+	gophercloud.Result
+}
+
+// Extract interprets role inferences results as a slice of RoleInference.
+func (r InferencesResult) Extract() ([]RoleInference, error) {
+	var s struct {
+		RoleInferences []RoleInference `json:"role_inferences"`
+	}
+	err := r.ExtractInto(&s)
+	return s.RoleInferences, err
+}

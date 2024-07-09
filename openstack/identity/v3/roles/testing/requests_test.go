@@ -342,3 +342,23 @@ func TestUnassign(t *testing.T) {
 	}).ExtractErr()
 	th.AssertNoErr(t, err)
 }
+
+func TestListInferences(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+	HandleListRoleInferencesSuccessfully(t)
+
+	actual, err := roles.ListInferences(client.ServiceClient()).Extract()
+	th.AssertNoErr(t, err)
+	th.CheckDeepEquals(t, ExpectedRoleInferencesSlice, actual)
+}
+
+func TestListInferencesOnRole(t *testing.T) {
+	th.SetupHTTP()
+	defer th.TeardownHTTP()
+	HandleListRoleInferencesOnRoleSuccessfully(t)
+
+	actual, err := roles.ListInferencesOnRole(client.ServiceClient(), "{role_id}").Extract()
+	th.AssertNoErr(t, err)
+	th.CheckDeepEquals(t, ExpectedRoleInferencesOnRole, actual)
+}

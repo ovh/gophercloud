@@ -405,3 +405,21 @@ func Unassign(client *gophercloud.ServiceClient, roleID string, opts UnassignOpt
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
 }
+
+// ListInferences lists all role inference rules.
+func ListInferences(client *gophercloud.ServiceClient) (r InferencesResult) {
+	resp, err := client.Get(listInferencesURL(client), &r.Body, &gophercloud.RequestOpts{
+		OkCodes: []int{200},
+	})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
+// ListInferencesOnRole lists implied (inference) roles for role.
+func ListInferencesOnRole(client *gophercloud.ServiceClient, roleID string) (r InferenceResult) {
+	resp, err := client.Get(listInferencesOnRoleURL(client, roleID), &r.Body, &gophercloud.RequestOpts{
+		OkCodes: []int{200},
+	})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
