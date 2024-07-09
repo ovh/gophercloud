@@ -210,6 +210,110 @@ const ListAssignmentsOnResourceOutput = `
 }
 `
 
+// ListInferencesOutput provides a result of ListInferences request.
+const ListInferencesOutput = `
+{
+    "role_inferences": [
+        {
+            "prior_role": {
+                "id": "1acd3c5aa0e246b9a7427d252160dcd1",
+                "name": "prior role1 name",
+                "description": "prior role1 description",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/1acd3c5aa0e246b9a7427d252160dcd1"
+                }
+            },
+            "implies": [
+                {
+                    "id": "3602510e2e1f499589f78a0724dcf614",
+                    "name": "implied role1 name",
+                    "description": "implied role1 description",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/3602510e2e1f499589f78a0724dcf614"
+                    }
+                },
+                {
+                    "id": "738289aeef684e73a987f7cf2ec6d925",
+                    "name": "implied role2 name",
+                    "description": "implied role2 description",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/738289aeef684e73a987f7cf2ec6d925"
+                    }
+                }
+            ]
+        },
+        {
+            "prior_role": {
+                "id": "bbf7a5098bb34407b7164eb6ff9f144e",
+                "name": "prior role2 name",
+                "description": "prior role2 description",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/bbf7a5098bb34407b7164eb6ff9f144e"
+                }
+            },
+            "implies": [
+                {
+                    "id": "872b20ad124c4c1bafaef2b1aae316ab",
+                    "name": "implied role1 name",
+                    "description": "implied role1 description",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/872b20ad124c4c1bafaef2b1aae316ab"
+                    }
+                },
+                {
+                    "id": "1d865b1b2da14cb7b05254677e5f36a2",
+                    "name": "implied role2 name",
+                    "description": "implied role2 description",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/1d865b1b2da14cb7b05254677e5f36a2"
+                    }
+                }
+            ]
+        }
+    ],
+    "links": {
+        "self": "http://example.com/identity/v3/role_inferences"
+    }
+}
+`
+
+// ListInferencesOnRoleOutput provides a result of ListInferencesOnRole request.
+const ListInferencesOnRoleOutput = `
+{
+    "role_inference": {
+        "prior_role": {
+            "id": "1acd3c5aa0e246b9a7427d252160dcd1",
+            "name": "prior role1 name",
+            "description": "prior role1 description",
+            "links": {
+                "self": "http://example.com/identity/v3/roles/1acd3c5aa0e246b9a7427d252160dcd1"
+            }
+        },
+        "implies": [
+            {
+                "id": "3602510e2e1f499589f78a0724dcf614",
+                "name": "implied role1 name",
+                "description": "implied role1 description",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/3602510e2e1f499589f78a0724dcf614"
+                }
+            },
+            {
+                "id": "738289aeef684e73a987f7cf2ec6d925",
+                "name": "implied role2 name",
+                "description": "implied role2 description",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/738289aeef684e73a987f7cf2ec6d925"
+                }
+            }
+        ]
+    },
+    "links": {
+        "self": "http://example.com/identity/v3/roles/42c764f0c19146728dbfe73a49cc35c3/implies"
+    }
+}
+`
+
 // FirstRole is the first role in the List request.
 var FirstRole = roles.Role{
 	DomainID: "default",
@@ -513,4 +617,131 @@ func HandleListAssignmentsOnResourceSuccessfully_DomainsGroups(t *testing.T) {
 	}
 
 	th.Mux.HandleFunc("/domains/{domain_id}/groups/{group_id}/roles", fn)
+}
+
+// FirstRoleInferencePriorRole is the first prior role in the ListInferences request.
+var FirstRoleInferencePriorRole = roles.Role{
+	ID:   "1acd3c5aa0e246b9a7427d252160dcd1",
+	Name: "prior role1 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/1acd3c5aa0e246b9a7427d252160dcd1",
+	},
+	Extra: map[string]interface{}{
+		"description": "prior role1 description",
+	},
+}
+
+// FirstRoleInferenceImpliesRole1 is the first implied role of first prior role in the ListInferences request.
+var FirstRoleInferenceImpliesRole1 = roles.Role{
+	ID:   "3602510e2e1f499589f78a0724dcf614",
+	Name: "implied role1 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/3602510e2e1f499589f78a0724dcf614",
+	},
+	Extra: map[string]interface{}{
+		"description": "implied role1 description",
+	},
+}
+
+// FirstRoleInferenceImpliesRole2 is the second implied role of first prior role in the ListInferences request.
+var FirstRoleInferenceImpliesRole2 = roles.Role{
+	ID:   "738289aeef684e73a987f7cf2ec6d925",
+	Name: "implied role2 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/738289aeef684e73a987f7cf2ec6d925",
+	},
+	Extra: map[string]interface{}{
+		"description": "implied role2 description",
+	},
+}
+
+// SecondRoleInferencePriorRole is the second prior role in the ListInferences request.
+var SecondRoleInferencePriorRole = roles.Role{
+	ID:   "bbf7a5098bb34407b7164eb6ff9f144e",
+	Name: "prior role2 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/bbf7a5098bb34407b7164eb6ff9f144e",
+	},
+	Extra: map[string]interface{}{
+		"description": "prior role2 description",
+	},
+}
+
+// SecondRoleInferenceImpliesRole1 is the first implied role of second prior role in the ListInferences request.
+var SecondRoleInferenceImpliesRole1 = roles.Role{
+	ID:   "872b20ad124c4c1bafaef2b1aae316ab",
+	Name: "implied role1 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/872b20ad124c4c1bafaef2b1aae316ab",
+	},
+	Extra: map[string]interface{}{
+		"description": "implied role1 description",
+	},
+}
+
+// SecondRoleInferenceImpliesRole2 is the second implied role of second prior role in the ListInferences request.
+var SecondRoleInferenceImpliesRole2 = roles.Role{
+	ID:   "1d865b1b2da14cb7b05254677e5f36a2",
+	Name: "implied role2 name",
+	Links: map[string]interface{}{
+		"self": "http://example.com/identity/v3/roles/1d865b1b2da14cb7b05254677e5f36a2",
+	},
+	Extra: map[string]interface{}{
+		"description": "implied role2 description",
+	},
+}
+
+// ExpectedRoleInferencesSlice is the slice of role inferences expected to be returned from ListInferences.
+var ExpectedRoleInferencesSlice = []roles.RoleInference{
+	{
+		PriorRole: FirstRoleInferencePriorRole,
+		Implies: []roles.Role{
+			FirstRoleInferenceImpliesRole1,
+			FirstRoleInferenceImpliesRole2,
+		},
+	},
+	{
+		PriorRole: SecondRoleInferencePriorRole,
+		Implies: []roles.Role{
+			SecondRoleInferenceImpliesRole1,
+			SecondRoleInferenceImpliesRole2,
+		},
+	},
+}
+
+// ExpectedRoleInferencesOnRole is the role inferences expected to be returned from ListInferencesOnRole.
+var ExpectedRoleInferencesOnRole = roles.RoleInference{
+	PriorRole: FirstRoleInferencePriorRole,
+	Implies: []roles.Role{
+		FirstRoleInferenceImpliesRole1,
+		FirstRoleInferenceImpliesRole2,
+	},
+}
+
+// HandleListRoleInferencesSuccessfully creates an HTTP handler at `/role_inferences` on the
+// test handler mux that responds with a list of two role inferences.
+func HandleListRoleInferencesSuccessfully(t *testing.T) {
+	th.Mux.HandleFunc("/role_inferences", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, ListInferencesOutput)
+	})
+}
+
+// HandleListRoleInferencesOnRoleSuccessfully creates an HTTP handler at `/role/{role_id}/implies` on the
+// test handler mux that responds with a role inference.
+func HandleListRoleInferencesOnRoleSuccessfully(t *testing.T) {
+	th.Mux.HandleFunc("/roles/{role_id}/implies", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, ListInferencesOnRoleOutput)
+	})
 }
