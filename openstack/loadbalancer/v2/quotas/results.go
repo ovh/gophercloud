@@ -31,6 +31,11 @@ type UpdateResult struct {
 	commonResult
 }
 
+// DeleteResult represents the result of a delete operation.
+type DeleteResult struct {
+	gophercloud.ErrResult
+}
+
 // Quota contains load balancer quotas for a project.
 type Quota struct {
 	// Loadbalancer represents the number of load balancers. A "-1" value means no limit.

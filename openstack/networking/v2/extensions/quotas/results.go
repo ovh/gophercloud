@@ -52,6 +52,11 @@ type UpdateResult struct {
 	commonResult
 }
 
+// DeleteResult represents the result of a delete operation.
+type DeleteResult struct {
+	gophercloud.ErrResult
+}
+
 // Quota contains Networking quotas for a project.
 type Quota struct {
 	// FloatingIP represents a number of floating IPs. A "-1" value means no limit.
