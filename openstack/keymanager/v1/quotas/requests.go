@@ -70,7 +70,7 @@ type UpdateOpts struct {
 	Orders *int `json:"orders,omitempty"`
 
 	// Containers represents the number of containers. A "-1" value means no limit.
-	Containers *int `json:"container,omitemptys"`
+	Containers *int `json:"containers,omitempty"`
 
 	// Consumers represents the number of consumers. A "-1" value means no limit.
 	Consumers *int `json:"consumers,omitempty"`
