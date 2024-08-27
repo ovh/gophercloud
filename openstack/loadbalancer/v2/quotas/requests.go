@@ -64,7 +64,7 @@ func Update(c *gophercloud.ServiceClient, projectID string, opts UpdateOptsBuild
 
 func Delete(c *gophercloud.ServiceClient, projectID string) (r DeleteResult) {
 	resp, err := c.Delete(deleteURL(c, projectID), &gophercloud.RequestOpts{
-		OkCodes: []int{204},
+		OkCodes: []int{202, 204},
 	})
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
