@@ -36,6 +36,9 @@ type Snapshot struct {
 
 	// User-defined key-value pairs.
 	Metadata map[string]string `json:"metadata"`
+
+	// TenantID is the id of the project that owns the volume.
+	TenantID string `json:"os-extended-snapshot-attributes:project_id"`
 }
 
 // CreateResult contains the response body and error from a Create request.

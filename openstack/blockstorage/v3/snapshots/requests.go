@@ -120,6 +120,23 @@ func List(client *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pa
 	})
 }
 
+// ListDetail - Return a list ports with complete details.
+// Some filtering is possible by passing in flags in "ListOpts",
+// but you cannot limit by the fields returned.
+func ListDetail(client *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
+	url := listDetailURL(client)
+	if opts != nil {
+		query, err := opts.ToSnapshotListQuery()
+		if err != nil {
+			return pagination.Pager{Err: err}
+		}
+		url += query
+	}
+	return pagination.NewPager(client, url, func(r pagination.PageResult) pagination.Page {
+		return SnapshotPage{pagination.LinkedPageBase{PageResult: r}}
+	})
+}
+
 // UpdateOptsBuilder allows extensions to add additional parameters to the
 // Update request.
 type UpdateOptsBuilder interface {
