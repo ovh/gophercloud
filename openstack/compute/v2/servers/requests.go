@@ -240,6 +240,9 @@ type CreateOpts struct {
 	// Tags allows a server to be tagged with single-word metadata.
 	// Requires microversion 2.52 or later.
 	Tags []string `json:"tags,omitempty"`
+
+	// KeyName is the name of the key pair.
+	KeyName string `json:"key_name,omitempty"`
 }
 
 // ToServerCreateMap assembles a request body based on the contents of a
