@@ -73,6 +73,9 @@ type Flavor struct {
 	// IsPublic indicates whether the flavor is public.
 	IsPublic bool `json:"os-flavor-access:is_public"`
 
+	// Disabled indicates a disabled flavor
+	Disabled bool `json:"OS-FLV-DISABLED:disabled"`
+
 	// Ephemeral is the amount of ephemeral disk space, measured in GB.
 	Ephemeral int `json:"OS-FLV-EXT-DATA:ephemeral"`
 
