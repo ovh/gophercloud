@@ -487,9 +487,9 @@ type RebuildOpts struct {
 	// Rebuild will base64-encode file contents for you.
 	Personality Personality `json:"personality,omitempty"`
 
-    // Configuration information or scripts to use upon rebuild. Must be Base64 encoded. Restricted to 65535 bytes.
-    // If null is specified, the existing user_data is unset.
-    UserData *string `json:"user_data"`
+	// Configuration information or scripts to use upon rebuild. Must be Base64 encoded. Restricted to 65535 bytes.
+	// If null is specified, the existing user_data is unset.
+	UserData *string `json:"user_data"`
 }
 
 // ToServerRebuildMap formats a RebuildOpts struct into a map for use in JSON
