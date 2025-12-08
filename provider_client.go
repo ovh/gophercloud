@@ -337,6 +337,8 @@ type RequestOpts struct {
 	// KeepResponseBody specifies whether to keep the HTTP response body. Usually used, when the HTTP
 	// response body is considered for further use. Valid when JSONResponse is nil.
 	KeepResponseBody bool
+	// Use JSON number
+	JSONUseNumber bool
 }
 
 // requestState contains temporary state for a single ProviderClient.Request() call.
@@ -493,10 +495,10 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 				state.hasReauthenticated = true
 				resp, err = client.doRequest(method, url, options, state)
 				if err != nil {
-					switch err.(type) {
+					switch err := err.(type) {
 					case *ErrUnexpectedResponseCode:
 						e := &ErrErrorAfterReauthentication{}
-						e.ErrOriginal = err.(*ErrUnexpectedResponseCode)
+						e.ErrOriginal = err
 						return nil, e
 					default:
 						e := &ErrErrorAfterReauthentication{}
@@ -607,7 +609,13 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			_, err = io.Copy(ioutil.Discard, resp.Body)
 			return resp, err
 		}
-		if err := json.NewDecoder(resp.Body).Decode(options.JSONResponse); err != nil {
+
+		decoder := json.NewDecoder(resp.Body)
+		if options.JSONUseNumber {
+			decoder.UseNumber()
+		}
+
+		if err := decoder.Decode(options.JSONResponse); err != nil {
 			if client.RetryFunc != nil {
 				var e error
 				state.retries = state.retries + 1

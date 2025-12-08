@@ -56,7 +56,9 @@ func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 
 // Get retrieves a specific NetworkIPAvailability based on its ID.
 func Get(c *gophercloud.ServiceClient, id string) (r GetResult) {
-	resp, err := c.Get(getURL(c, id), &r.Body, nil)
+	resp, err := c.Get(getURL(c, id), &r.Body, &gophercloud.RequestOpts{
+		JSONUseNumber: true,
+	})
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
 }

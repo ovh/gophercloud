@@ -1,7 +1,6 @@
 package networkipavailabilities
 
 import (
-	"encoding/json"
 	"math/big"
 
 	"github.com/gophercloud/gophercloud"
@@ -46,30 +45,10 @@ type NetworkIPAvailability struct {
 	SubnetIPAvailabilities []SubnetIPAvailability `json:"subnet_ip_availability"`
 
 	// TotalIPs represents a number of IP addresses in the network.
-	TotalIPs string `json:"-"`
+	TotalIPs big.Int `json:"total_ips"`
 
 	// UsedIPs represents a number of used IP addresses in the network.
-	UsedIPs string `json:"-"`
-}
-
-func (r *NetworkIPAvailability) UnmarshalJSON(b []byte) error {
-	type tmp NetworkIPAvailability
-	var s struct {
-		tmp
-		TotalIPs big.Int `json:"total_ips"`
-		UsedIPs  big.Int `json:"used_ips"`
-	}
-
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	*r = NetworkIPAvailability(s.tmp)
-
-	r.TotalIPs = s.TotalIPs.String()
-	r.UsedIPs = s.UsedIPs.String()
-
-	return err
+	UsedIPs big.Int `json:"used_ips"`
 }
 
 // SubnetIPAvailability represents availability details for a single subnet.
@@ -87,30 +66,10 @@ type SubnetIPAvailability struct {
 	IPVersion int `json:"ip_version"`
 
 	// TotalIPs represents a number of IP addresses in the subnet.
-	TotalIPs string `json:"-"`
+	TotalIPs big.Int `json:"total_ips"`
 
 	// UsedIPs represents a number of used IP addresses in the subnet.
-	UsedIPs string `json:"-"`
-}
-
-func (r *SubnetIPAvailability) UnmarshalJSON(b []byte) error {
-	type tmp SubnetIPAvailability
-	var s struct {
-		tmp
-		TotalIPs big.Int `json:"total_ips"`
-		UsedIPs  big.Int `json:"used_ips"`
-	}
-
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	*r = SubnetIPAvailability(s.tmp)
-
-	r.TotalIPs = s.TotalIPs.String()
-	r.UsedIPs = s.UsedIPs.String()
-
-	return err
+	UsedIPs big.Int `json:"used_ips"`
 }
 
 // NetworkIPAvailabilityPage stores a single page of NetworkIPAvailabilities
