@@ -513,6 +513,9 @@ type CreateOpts struct {
 
 	// HypervisorHostname is the name of the hypervisor to which the server is scheduled.
 	HypervisorHostname string `json:"hypervisor_hostname,omitempty"`
+
+	// KeyName is the name of the key pair.
+	KeyName string `json:"key_name,omitempty"`
 }
 
 // ToServerCreateMap assembles a request body based on the contents of a
