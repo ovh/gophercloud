@@ -785,6 +785,10 @@ type RebuildOpts struct {
 
 	// DiskConfig controls how the rebuilt server's disk is partitioned.
 	DiskConfig DiskConfig `json:"OS-DCF:diskConfig,omitempty"`
+
+	// Configuration information or scripts to use upon rebuild. Must be Base64 encoded. Restricted to 65535 bytes.
+	// If null is specified, the existing user_data is unset.
+	UserData *string `json:"user_data,omitempty"`
 }
 
 // ToServerRebuildMap formats a RebuildOpts struct into a map for use in JSON
