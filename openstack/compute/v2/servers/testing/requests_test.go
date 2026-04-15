@@ -1208,3 +1208,21 @@ func TestUpdateServerHostname(t *testing.T) {
 
 	th.CheckDeepEquals(t, ServerDerp, *actual)
 }
+
+func TestLiveMigrate225(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleLiveMigrate225Successfully(t, fakeServer, ServerHerp.ID)
+
+	host := "01c0cadef72d47e28a672a76060d492c"
+	diskOverCommit := true
+
+	migrationOpts := servers.LiveMigrate225Opts{
+		Host:           &host,
+		BlockMigration: "auto",
+		DiskOverCommit: &diskOverCommit,
+	}
+
+	err := servers.LiveMigrate(context.TODO(), client.ServiceClient(fakeServer), ServerHerp.ID, migrationOpts).ExtractErr()
+	th.AssertNoErr(t, err)
+}

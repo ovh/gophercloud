@@ -1377,3 +1377,18 @@ func HandleServerHostnameUpdateSuccessfully(t *testing.T, fakeServer th.FakeServ
 		fmt.Fprint(w, SingleServerBody)
 	})
 }
+
+func HandleLiveMigrate225Successfully(t *testing.T, fakeServer th.FakeServer, id string) {
+	fakeServer.Mux.HandleFunc("/servers/"+id+"/action", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
+		th.TestJSONRequest(t, r, `{
+                       "os-migrateLive": {
+                               "host": "01c0cadef72d47e28a672a76060d492c",
+                               "block_migration": "auto",
+                               "disk_over_commit": true
+                       }
+               }`)
+		w.WriteHeader(http.StatusAccepted)
+	})
+}
