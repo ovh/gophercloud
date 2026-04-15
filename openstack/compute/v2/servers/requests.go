@@ -1227,6 +1227,35 @@ func (opts LiveMigrateOpts) ToLiveMigrateMap() (map[string]any, error) {
 	return gophercloud.BuildRequestBody(opts, "os-migrateLive")
 }
 
+// LiveMigrateOpts specifies parameters of live migrate action.
+type LiveMigrate225Opts struct {
+	// The host to which to migrate the server.
+	// If this parameter is None, the scheduler chooses a host.
+	Host *string `json:"host"`
+
+	// Set to True to migrate local disks by using block migration.
+	// If the source or destination host uses shared storage and you set
+	// this value to True, the live migration fails.
+
+	// Migrates local disks by using block migration.
+	// Set to auto which means nova will detect whether source and destination hosts on shared storage.
+	// If they are on shared storage, the live-migration won't be block migration.
+	// Otherwise the block migration will be executed.
+	// Set to True, means the request will fail when the source or destination host uses shared storage.
+	// Set to False means the request will fail when the source and destination hosts are not on the shared storage.
+	BlockMigration string `json:"block_migration"`
+
+	// Set to True to enable over commit when the destination host is checked
+	// for available disk space. Set to False to disable over commit. This setting
+	// affects only the libvirt virt driver.
+	DiskOverCommit *bool `json:"disk_over_commit,omitempty"`
+}
+
+// ToLiveMigrateMap constructs a request body from LiveMigrateOpts.
+func (opts LiveMigrate225Opts) ToLiveMigrateMap() (map[string]interface{}, error) {
+	return gophercloud.BuildRequestBody(opts, "os-migrateLive")
+}
+
 // LiveMigrate will initiate a live-migration (without rebooting) of the instance to another host.
 func LiveMigrate(ctx context.Context, client *gophercloud.ServiceClient, id string, opts LiveMigrateOptsBuilder) (r MigrateResult) {
 	b, err := opts.ToLiveMigrateMap()
