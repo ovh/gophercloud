@@ -269,6 +269,10 @@ func (r GetExportLocationResult) Extract() (*ExportLocation, error) {
 type AccessRight struct {
 	// The UUID of the share to which you are granted or denied access.
 	ShareID string `json:"share_id"`
+	// The date and time stamp when the resource was created within the service’s database.
+	CreatedAt time.Time `json:"-"`
+	// The date and time stamp when the resource was last updated within the service’s database.
+	UpdatedAt time.Time `json:"-"`
 	// The access rule type that can be "ip", "cert" or "user".
 	AccessType string `json:"access_type,omitempty"`
 	// The value that defines the access that can be a valid format of IP, cert or user.
@@ -281,6 +285,25 @@ type AccessRight struct {
 	State string `json:"state,omitempty"`
 	// The access rule ID.
 	ID string `json:"id"`
+}
+
+func (r *AccessRight) UnmarshalJSON(b []byte) error {
+	type tmp AccessRight
+	var s struct {
+		tmp
+		CreatedAt gophercloud.JSONRFC3339MilliNoZ `json:"created_at"`
+		UpdatedAt gophercloud.JSONRFC3339MilliNoZ `json:"updated_at"`
+	}
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return err
+	}
+	*r = AccessRight(s.tmp)
+
+	r.CreatedAt = time.Time(s.CreatedAt)
+	r.UpdatedAt = time.Time(s.UpdatedAt)
+
+	return nil
 }
 
 // Extract will get the GrantAccess object from the commonResult
