@@ -508,3 +508,9 @@ func NewWorkflowV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOp
 func NewPlacementV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
 	return initClientOpts(client, eo, "placement", 1)
 }
+
+// NewVirtualPrivateCloudV1 creates a ServiceClient that may be used with the v1
+// Virtual Private Cloud (Orion) lifecycle management package.
+func NewVirtualPrivateCloudV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	return initClientOpts(client, eo, "vpc", 1)
+}
