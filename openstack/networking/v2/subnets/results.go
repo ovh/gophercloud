@@ -129,6 +129,9 @@ type Subnet struct {
 	// available when segment extension is enabled.
 	SegmentID string `json:"segment_id"`
 
+	// VpcID is the VPC identifier. Inherited from the parent network (read-only).
+	VpcID string `json:"vpc_id"`
+
 	// Timestamp when the subnet was created
 	CreatedAt time.Time `json:"-"`
 
