@@ -129,6 +129,15 @@ type Subnet struct {
 	// available when segment extension is enabled.
 	SegmentID string `json:"segment_id"`
 
+	// VpcID is the VPC identifier, inherited from the parent network.
+	// It is empty on subnets that are not in a VPC.
+	VpcID string `json:"vpc_id"`
+
+	// VpcStatus is the sync state of the VPC binding with the backend:
+	// ACTIVE, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE or ERROR.
+	// It is empty on subnets that are not in a VPC.
+	VpcStatus string `json:"vpc_status"`
+
 	// Timestamp when the subnet was created
 	CreatedAt time.Time `json:"-"`
 

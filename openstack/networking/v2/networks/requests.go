@@ -39,6 +39,7 @@ type ListOpts struct {
 	RevisionNumber *int   `q:"revision_number"`
 	NetworkType    string `q:"provider:network_type"`
 	SegmentationID *int   `q:"provider:segmentation_id"`
+	VpcID          string `q:"vpc_id"`
 }
 
 // ToNetworkListQuery formats a ListOpts into a query string.
@@ -88,6 +89,7 @@ type CreateOpts struct {
 	AvailabilityZoneHints []string `json:"availability_zone_hints,omitempty"`
 	NetworkType           string   `json:"provider:network_type,omitempty"`
 	SegmentationID        *int     `json:"provider:segmentation_id,omitempty"`
+	VpcID                 string   `json:"vpc_id,omitempty"`
 }
 
 // ToNetworkCreateMap builds a request body from CreateOpts.

@@ -81,6 +81,9 @@ type Router struct {
 	// RevisionNumber optionally set via extensions/standard-attr-revisions
 	RevisionNumber int `json:"revision_number"`
 
+	// VpcID is the VPC identifier. 1-to-1 relation with a router.
+	VpcID string `json:"vpc_id"`
+
 	// Timestamp when the router was created
 	CreatedAt time.Time `json:"-"`
 
