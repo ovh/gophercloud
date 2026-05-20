@@ -121,19 +121,14 @@ func (eo *EndpointOpts) ApplyDefaults(t string) {
 			// unhappy path: user requested a service type by its alias or an
 			// invalid/unsupported service type
 			// TODO(stephenfin): This should probably be an error in v3
-			// Use the only provided alias directly to avoid taking a service at random from the aliases types.
-			eo.Aliases = []string{eo.Type}
-			// fmt.Printf("No aliases found for service type '%s'. Checking if it is an alias for a known service type.\n", eo.Type)
-			// for t, aliases := range ServiceTypeAliases {
-			// 	fmt.Printf("Checking if '%s' is an alias for service type '%s' with aliases %v\n", eo.Type, t, aliases)
-			// 	if slices.Contains(aliases, eo.Type) {
-			// 		// we intentionally override the service type, even if it
-			// 		// was explicitly requested by the user
-			// 		fmt.Printf("Service type '%s' is an alias for service type '%s'. Applying aliases: %v\n", eo.Type, t, aliases)
-			// 		eo.Type = t
-			// 		eo.Aliases = slices.Clone(aliases)
-			// 	}
-			// }
+			for t, aliases := range ServiceTypeAliases {
+				if slices.Contains(aliases, eo.Type) {
+					// we intentionally override the service type, even if it
+					// was explicitly requested by the user
+					eo.Type = t
+					eo.Aliases = slices.Clone(aliases)
+				}
+			}
 		}
 	}
 }
