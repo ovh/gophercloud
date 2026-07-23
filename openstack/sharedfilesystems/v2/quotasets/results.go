@@ -33,7 +33,7 @@ type QuotaSet struct {
 	ShareReplicas *int `json:"share_replicas,omitempty"`
 
 	// Share Replica Gigabytes is the total size of share replicas for the project in gigabytes.
-	ShareReplicaGigabytes *int `json:"share_replica_gigabytes,omitempty"`
+	ReplicaGigabytes *int `json:"replica_gigabytes,omitempty"`
 
 	// PerShareGigabytes is the maximum size of a share for the project in gigabytes.
 	PerShareGigabytes *int `json:"per_share_gigabytes,omitempty"`
@@ -43,46 +43,49 @@ type QuotaSet struct {
 
 	// BackupsGigabytes is the maximum number of gigabytes for the backups allowed for each project.
 	BackupsGigabytes *int `json:"backup_gigabytes,omitempty"`
+
+	// EncryptionKeys is the maximum number of encryption keys allowed for each project.
+	EncryptionKeys *int `json:"encryption_keys,omitempty"`
 }
 
 // QuotaDetailSet represents details of both operational limits of shares file system resources for a project
 // and the current usage of those resources.
 type QuotaDetailSet struct {
 	// Gigabytes is the total size of share storage for the project in gigabytes.
-	Gigabytes QuotaDetail `json:"gigabytes,omitempty"`
+	Gigabytes QuotaDetail `json:"gigabytes,omitzero"`
 
 	// Snapshots is the total number of share snapshots for the project.
-	Snapshots QuotaDetail `json:"snapshots,omitempty"`
+	Snapshots QuotaDetail `json:"snapshots,omitzero"`
 
 	// Shares is the total number of shares for the project.
-	Shares QuotaDetail `json:"shares,omitempty"`
+	Shares QuotaDetail `json:"shares,omitzero"`
 
 	// SnapshotGigabytes is the total size of share snapshots for the project in gigabytes.
-	SnapshotGigabytes QuotaDetail `json:"snapshot_gigabytes,omitempty"`
+	SnapshotGigabytes QuotaDetail `json:"snapshot_gigabytes,omitzero"`
 
 	// Share network is the total number of share networks for the project.
-	ShareNetworks QuotaDetail `json:"share_networks,omitempty"`
+	ShareNetworks QuotaDetail `json:"share_networks,omitzero"`
 
 	// Share groups is the total number of share groups for the project.
-	ShareGroups QuotaDetail `json:"share_groups,omitempty"`
+	ShareGroups QuotaDetail `json:"share_groups,omitzero"`
 
 	// Share group snapshots is the total number of share group snapshots for the project.
-	ShareGroupSnapshots QuotaDetail `json:"share_group_snapshots,omitempty"`
+	ShareGroupSnapshots QuotaDetail `json:"share_group_snapshots,omitzero"`
 
 	// Share Replicas is the total number of share replicas for the project.
-	ShareReplicas QuotaDetail `json:"share_replicas,omitempty"`
+	ShareReplicas QuotaDetail `json:"share_replicas,omitzero"`
 
 	// Share Replica Gigabytes is the total size of share replicas for the project in gigabytes.
-	ShareReplicaGigabytes QuotaDetail `json:"share_replica_gigabytes,omitempty"`
+	ReplicaGigabytes QuotaDetail `json:"replica_gigabytes,omitzero"`
 
 	// PerShareGigabytes is the maximum size of a share for the project in gigabytes.
-	PerShareGigabytes QuotaDetail `json:"per_share_gigabytes,omitempty"`
+	PerShareGigabytes QuotaDetail `json:"per_share_gigabytes,omitzero"`
 
 	// Backups is the maximum number of backups allowed for each project.
-	Backups QuotaDetail `json:"backups,omitempty"`
+	Backups QuotaDetail `json:"backups,omitzero"`
 
 	// BackupsGigabytes is the maximum number of gigabytes for the backups allowed for each project.
-	BackupsGigabytes QuotaDetail `json:"backup_gigabytes,omitempty"`
+	BackupsGigabytes QuotaDetail `json:"backup_gigabytes,omitzero"`
 }
 
 // QuotaDetail is a set of details about a single operational limit that allows
@@ -157,6 +160,12 @@ type GetResult struct {
 // UpdateResult is the response from a Update operation. Call its Extract method
 // to interpret it as a QuotaSet.
 type UpdateResult struct {
+	quotaResult
+}
+
+// DeleteResult is the response from a Delete operation. Call its Extract method
+// to interpret it as a QuotaSet.
+type DeleteResult struct {
 	quotaResult
 }
 

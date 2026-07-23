@@ -26,8 +26,11 @@ const ExpectedInitialQuotaSet = `
 		"share_groups": 10,
 		"share_group_snapshots": 10,
 		"share_replicas": 10,
-		"share_replica_gigabytes": 10,
-		"per_share_gigabytes": 10
+		"replica_gigabytes": 10,
+		"per_share_gigabytes": 10,
+		"backups": 10,
+		"backup_gigabytes": 10,
+		"encryption_keys": 10
 	}
 }
 `
@@ -43,8 +46,11 @@ const ExpectedUpdatedQuotaSet = `
 		"share_groups": 100,
 		"share_group_snapshots": 100,
 		"share_replicas": 100,
-		"share_replica_gigabytes": 100,
-		"per_share_gigabytes": 100
+		"replica_gigabytes": 100,
+		"per_share_gigabytes": 100,
+		"backups": 100,
+		"backup_gigabytes": 100,
+		"encryption_keys": 100
 	}
 }
 `
