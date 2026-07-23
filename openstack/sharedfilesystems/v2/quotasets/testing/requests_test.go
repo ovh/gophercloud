@@ -18,16 +18,19 @@ func TestGetQuotaSet(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(10),
-		Snapshots:             gophercloud.IntToPointer(10),
-		Shares:                gophercloud.IntToPointer(10),
-		SnapshotGigabytes:     gophercloud.IntToPointer(10),
-		ShareNetworks:         gophercloud.IntToPointer(10),
-		ShareGroups:           gophercloud.IntToPointer(10),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(10),
-		ShareReplicas:         gophercloud.IntToPointer(10),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(10),
-		PerShareGigabytes:     gophercloud.IntToPointer(10),
+		Gigabytes:           gophercloud.IntToPointer(10),
+		Snapshots:           gophercloud.IntToPointer(10),
+		Shares:              gophercloud.IntToPointer(10),
+		SnapshotGigabytes:   gophercloud.IntToPointer(10),
+		ShareNetworks:       gophercloud.IntToPointer(10),
+		ShareGroups:         gophercloud.IntToPointer(10),
+		ShareGroupSnapshots: gophercloud.IntToPointer(10),
+		ShareReplicas:       gophercloud.IntToPointer(10),
+		ReplicaGigabytes:    gophercloud.IntToPointer(10),
+		PerShareGigabytes:   gophercloud.IntToPointer(10),
+		Backups:             gophercloud.IntToPointer(10),
+		BackupsGigabytes:    gophercloud.IntToPointer(10),
+		EncryptionKeys:      gophercloud.IntToPointer(10),
 	}, actual)
 }
 
@@ -37,30 +40,36 @@ func TestUpdateQuotaSet(t *testing.T) {
 	HandleUpdateQuotaSetSuccessfully(t, fakeServer)
 
 	actual, err := quotasets.Update(t.Context(), client.ServiceClient(fakeServer), tenantID, quotasets.UpdateOpts{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}).Extract()
 
 	th.AssertNoErr(t, err)
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}, actual)
 }
 
@@ -73,16 +82,19 @@ func TestGetByShareType(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(10),
-		Snapshots:             gophercloud.IntToPointer(10),
-		Shares:                gophercloud.IntToPointer(10),
-		SnapshotGigabytes:     gophercloud.IntToPointer(10),
-		ShareNetworks:         gophercloud.IntToPointer(10),
-		ShareGroups:           gophercloud.IntToPointer(10),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(10),
-		ShareReplicas:         gophercloud.IntToPointer(10),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(10),
-		PerShareGigabytes:     gophercloud.IntToPointer(10),
+		Gigabytes:           gophercloud.IntToPointer(10),
+		Snapshots:           gophercloud.IntToPointer(10),
+		Shares:              gophercloud.IntToPointer(10),
+		SnapshotGigabytes:   gophercloud.IntToPointer(10),
+		ShareNetworks:       gophercloud.IntToPointer(10),
+		ShareGroups:         gophercloud.IntToPointer(10),
+		ShareGroupSnapshots: gophercloud.IntToPointer(10),
+		ShareReplicas:       gophercloud.IntToPointer(10),
+		ReplicaGigabytes:    gophercloud.IntToPointer(10),
+		PerShareGigabytes:   gophercloud.IntToPointer(10),
+		Backups:             gophercloud.IntToPointer(10),
+		BackupsGigabytes:    gophercloud.IntToPointer(10),
+		EncryptionKeys:      gophercloud.IntToPointer(10),
 	}, actual)
 }
 
@@ -92,30 +104,36 @@ func TestUpdateByShareType(t *testing.T) {
 	HandleUpdateByShareTypeSuccessfully(t, fakeServer)
 
 	actual, err := quotasets.UpdateByShareType(t.Context(), client.ServiceClient(fakeServer), tenantID, ShareType, quotasets.UpdateOpts{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}).Extract()
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}, actual)
 }
 
@@ -128,16 +146,19 @@ func TestGetByUser(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(10),
-		Snapshots:             gophercloud.IntToPointer(10),
-		Shares:                gophercloud.IntToPointer(10),
-		SnapshotGigabytes:     gophercloud.IntToPointer(10),
-		ShareNetworks:         gophercloud.IntToPointer(10),
-		ShareGroups:           gophercloud.IntToPointer(10),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(10),
-		ShareReplicas:         gophercloud.IntToPointer(10),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(10),
-		PerShareGigabytes:     gophercloud.IntToPointer(10),
+		Gigabytes:           gophercloud.IntToPointer(10),
+		Snapshots:           gophercloud.IntToPointer(10),
+		Shares:              gophercloud.IntToPointer(10),
+		SnapshotGigabytes:   gophercloud.IntToPointer(10),
+		ShareNetworks:       gophercloud.IntToPointer(10),
+		ShareGroups:         gophercloud.IntToPointer(10),
+		ShareGroupSnapshots: gophercloud.IntToPointer(10),
+		ShareReplicas:       gophercloud.IntToPointer(10),
+		ReplicaGigabytes:    gophercloud.IntToPointer(10),
+		PerShareGigabytes:   gophercloud.IntToPointer(10),
+		Backups:             gophercloud.IntToPointer(10),
+		BackupsGigabytes:    gophercloud.IntToPointer(10),
+		EncryptionKeys:      gophercloud.IntToPointer(10),
 	}, actual)
 }
 
@@ -147,29 +168,35 @@ func TestUpdateByUser(t *testing.T) {
 	HandleUpdateByUserSuccessfully(t, fakeServer)
 
 	actual, err := quotasets.UpdateByUser(t.Context(), client.ServiceClient(fakeServer), tenantID, userID, quotasets.UpdateOpts{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}).Extract()
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, &quotasets.QuotaSet{
-		Gigabytes:             gophercloud.IntToPointer(100),
-		Snapshots:             gophercloud.IntToPointer(100),
-		Shares:                gophercloud.IntToPointer(100),
-		SnapshotGigabytes:     gophercloud.IntToPointer(100),
-		ShareNetworks:         gophercloud.IntToPointer(100),
-		ShareGroups:           gophercloud.IntToPointer(100),
-		ShareGroupSnapshots:   gophercloud.IntToPointer(100),
-		ShareReplicas:         gophercloud.IntToPointer(100),
-		ShareReplicaGigabytes: gophercloud.IntToPointer(100),
-		PerShareGigabytes:     gophercloud.IntToPointer(100),
+		Gigabytes:           gophercloud.IntToPointer(100),
+		Snapshots:           gophercloud.IntToPointer(100),
+		Shares:              gophercloud.IntToPointer(100),
+		SnapshotGigabytes:   gophercloud.IntToPointer(100),
+		ShareNetworks:       gophercloud.IntToPointer(100),
+		ShareGroups:         gophercloud.IntToPointer(100),
+		ShareGroupSnapshots: gophercloud.IntToPointer(100),
+		ShareReplicas:       gophercloud.IntToPointer(100),
+		ReplicaGigabytes:    gophercloud.IntToPointer(100),
+		PerShareGigabytes:   gophercloud.IntToPointer(100),
+		Backups:             gophercloud.IntToPointer(100),
+		BackupsGigabytes:    gophercloud.IntToPointer(100),
+		EncryptionKeys:      gophercloud.IntToPointer(100),
 	}, actual)
 }

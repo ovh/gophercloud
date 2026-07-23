@@ -33,6 +33,13 @@ func Update(ctx context.Context, client *gophercloud.ServiceClient, tenantID str
 	return
 }
 
+// Resets the quotas for the given tenant to their default values.
+func Delete(ctx context.Context, client *gophercloud.ServiceClient, tenantID string) (r DeleteResult) {
+	resp, err := client.Delete(ctx, deleteURL(client, tenantID), &gophercloud.RequestOpts{OkCodes: []int{200, 202, 204}})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
 // Get returns data about a previously created QuotaSet for a share type.
 func GetByShareType(ctx context.Context, client *gophercloud.ServiceClient, tenantID string, share_type string) (r GetResult) {
 	resp, err := client.Get(ctx, getURLbyShareType(client, tenantID, share_type), &r.Body, nil)
@@ -75,7 +82,7 @@ func UpdateByUser(ctx context.Context, client *gophercloud.ServiceClient, tenant
 
 // Options for Updating the quotas of a Tenant.
 // All int-values are pointers so they can be nil if they are not needed.
-// You can use gopercloud.IntToPointer() for convenience
+// You can use gophercloud.IntToPointer() for convenience
 type UpdateOpts struct {
 	// Gigabytes is the total size of share storage for the project in gigabytes.
 	Gigabytes *int `json:"gigabytes,omitempty"`
@@ -101,23 +108,32 @@ type UpdateOpts struct {
 	// Share Replicas is the total number of share replicas for the project.
 	ShareReplicas *int `json:"share_replicas,omitempty"`
 
-	// Share Replica Gigabytes is the total size of share replicas for the project in gigabytes.
-	ShareReplicaGigabytes *int `json:"share_replica_gigabytes,omitempty"`
+	// Replica Gigabytes is the total size of share replicas for the project in gigabytes.
+	ReplicaGigabytes *int `json:"replica_gigabytes,omitempty"`
 
 	// PerShareGigabytes is the maximum size of a share for the project in gigabytes.
 	PerShareGigabytes *int `json:"per_share_gigabytes,omitempty"`
+
+	// Backups is the maximum number of backups allowed for each project.
+	Backups *int `json:"backups,omitempty"`
+
+	// BackupsGigabytes is the maximum number of gigabytes for the backups allowed for each project.
+	BackupsGigabytes *int `json:"backup_gigabytes,omitempty"`
+
+	// EncryptionKeys is the maximum number of encryption keys allowed for each project.
+	EncryptionKeys *int `json:"encryption_keys,omitempty"`
 }
 
-// UpdateOptsBuilder enables extensins to add parameters to the update request.
+// UpdateOptsBuilder enables extensions to add parameters to the update request.
 type UpdateOptsBuilder interface {
 	// Extra specific name to prevent collisions with interfaces for other quotas
 	// (e.g. neutron)
-	ToManillaQuotaUpdateMap() (map[string]interface{}, error)
+	ToManillaQuotaUpdateMap() (map[string]any, error)
 }
 
 // ToComputeManillaUpdateMap builds the update options into a serializable
 // format.
-func (opts UpdateOpts) ToManillaQuotaUpdateMap() (map[string]interface{}, error) {
+func (opts UpdateOpts) ToManillaQuotaUpdateMap() (map[string]any, error) {
 	return gophercloud.BuildRequestBody(opts, "quota_set")
 
 }

@@ -17,6 +17,10 @@ func updateURL(c *gophercloud.ServiceClient, tenantID string) string {
 	return c.ServiceURL(resourcePath, tenantID)
 }
 
+func deleteURL(c *gophercloud.ServiceClient, tenantID string) string {
+	return c.ServiceURL(resourcePath, tenantID)
+}
+
 func getURLbyShareType(c *gophercloud.ServiceClient, tenantID string, share_type string) string {
 	return c.ServiceURL(resourcePath, tenantID) + "?share_type=" + share_type
 }
