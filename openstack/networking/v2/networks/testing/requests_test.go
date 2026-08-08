@@ -354,3 +354,98 @@ func TestUpdatePortSecurity(t *testing.T) {
 	th.AssertEquals(t, networkWithExtensions.ID, "4e8e5957-649f-477b-9e5b-f1f75b21c03c")
 	th.AssertEquals(t, networkWithExtensions.PortSecurityEnabled, false)
 }
+
+func TestCreateWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/networks", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, `
+{
+    "network": {
+        "name": "vpc-network",
+        "admin_state_up": true,
+        "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+    }
+}`)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprint(w, `
+{
+    "network": {
+        "status": "ACTIVE",
+        "subnets": [],
+        "name": "vpc-network",
+        "admin_state_up": true,
+        "tenant_id": "4fd44f30292945e481c7b8a0c8908869",
+        "shared": false,
+        "id": "e3f5f925-6c6c-4b1e-9c1e-7c6d4d7c3f2a",
+        "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+    }
+}`)
+	})
+
+	iTrue := true
+	options := networks.CreateOpts{
+		Name:         "vpc-network",
+		AdminStateUp: &iTrue,
+		VpcID:        "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1",
+	}
+	n, err := networks.Create(context.TODO(), fake.ServiceClient(fakeServer), options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, "vpc-network", n.Name)
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", n.VpcID)
+	th.AssertEquals(t, "e3f5f925-6c6c-4b1e-9c1e-7c6d4d7c3f2a", n.ID)
+}
+
+func TestListWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/networks", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		th.AssertEquals(t, r.URL.Query().Get("vpc_id"), "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1")
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `
+{
+    "networks": [
+        {
+            "status": "ACTIVE",
+            "subnets": ["54d6f61d-db07-451c-9ab3-b9609b6b6f0b"],
+            "name": "vpc-network",
+            "admin_state_up": true,
+            "tenant_id": "4fd44f30292945e481c7b8a0c8908869",
+            "shared": false,
+            "id": "e3f5f925-6c6c-4b1e-9c1e-7c6d4d7c3f2a",
+            "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+        }
+    ]
+}`)
+	})
+
+	listOpts := networks.ListOpts{
+		VpcID: "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1",
+	}
+
+	allPages, err := networks.List(fake.ServiceClient(fakeServer), listOpts).AllPages(context.TODO())
+	th.AssertNoErr(t, err)
+
+	allNetworks, err := networks.ExtractNetworks(allPages)
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, 1, len(allNetworks))
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", allNetworks[0].VpcID)
+	th.AssertEquals(t, "vpc-network", allNetworks[0].Name)
+}

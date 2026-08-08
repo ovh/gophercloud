@@ -676,3 +676,89 @@ func TestDelete(t *testing.T) {
 	res := subnets.Delete(context.TODO(), fake.ServiceClient(fakeServer), "08eae331-0402-425a-923c-34f7cfe39c1b")
 	th.AssertNoErr(t, res.Err)
 }
+
+func TestListWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/subnets", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		th.AssertEquals(t, r.URL.Query().Get("vpc_id"), "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1")
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `
+{
+    "subnets": [
+        {
+            "name": "vpc-subnet",
+            "enable_dhcp": true,
+            "network_id": "db193ab3-96e3-4cb3-8fc5-05f4296d0324",
+            "tenant_id": "26a7980765d0414dbc1fc1f88cdb7e6e",
+            "dns_nameservers": [],
+            "allocation_pools": [{"start": "10.0.0.2", "end": "10.0.0.254"}],
+            "host_routes": [],
+            "ip_version": 4,
+            "gateway_ip": "10.0.0.1",
+            "cidr": "10.0.0.0/24",
+            "id": "08eae331-0402-425a-923c-34f7cfe39c1b",
+            "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+        }
+    ]
+}`)
+	})
+
+	listOpts := subnets.ListOpts{
+		VpcID: "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1",
+	}
+
+	allPages, err := subnets.List(fake.ServiceClient(fakeServer), listOpts).AllPages(context.TODO())
+	th.AssertNoErr(t, err)
+
+	allSubnets, err := subnets.ExtractSubnets(allPages)
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, 1, len(allSubnets))
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", allSubnets[0].VpcID)
+	th.AssertEquals(t, "vpc-subnet", allSubnets[0].Name)
+}
+
+func TestGetWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/subnets/08eae331-0402-425a-923c-34f7cfe39c1b", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `
+{
+    "subnet": {
+        "name": "vpc-subnet",
+        "enable_dhcp": true,
+        "network_id": "db193ab3-96e3-4cb3-8fc5-05f4296d0324",
+        "tenant_id": "26a7980765d0414dbc1fc1f88cdb7e6e",
+        "dns_nameservers": [],
+        "allocation_pools": [{"start": "10.0.0.2", "end": "10.0.0.254"}],
+        "host_routes": [],
+        "ip_version": 4,
+        "gateway_ip": "10.0.0.1",
+        "cidr": "10.0.0.0/24",
+        "id": "08eae331-0402-425a-923c-34f7cfe39c1b",
+        "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+    }
+}`)
+	})
+
+	s, err := subnets.Get(context.TODO(), fake.ServiceClient(fakeServer), "08eae331-0402-425a-923c-34f7cfe39c1b").Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", s.VpcID)
+	th.AssertEquals(t, "vpc-subnet", s.Name)
+}

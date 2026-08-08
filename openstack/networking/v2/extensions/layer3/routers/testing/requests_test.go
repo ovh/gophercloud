@@ -897,3 +897,98 @@ func TestRemoveExternalGateways(t *testing.T) {
 	th.AssertEquals(t, n.ID, "4e8e5957-649f-477b-9e5b-f1f75b21c03c")
 	th.AssertEquals(t, n.GatewayInfo.NetworkID, "")
 }
+
+func TestCreateWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/routers", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "POST")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+		th.TestHeader(t, r, "Content-Type", "application/json")
+		th.TestHeader(t, r, "Accept", "application/json")
+		th.TestJSONRequest(t, r, `
+{
+    "router": {
+        "name": "vpc-router",
+        "admin_state_up": true,
+        "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+    }
+}`)
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprint(w, `
+{
+    "router": {
+        "status": "ACTIVE",
+        "external_gateway_info": null,
+        "name": "vpc-router",
+        "admin_state_up": true,
+        "tenant_id": "6b96ff0cb17a4b859e1e575d221683d3",
+        "distributed": false,
+        "id": "8604a0de-7f6b-409a-a47c-a1cc7bc77b2e",
+        "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+    }
+}`)
+	})
+
+	asu := true
+	options := routers.CreateOpts{
+		Name:         "vpc-router",
+		AdminStateUp: &asu,
+		VpcID:        "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1",
+	}
+	r, err := routers.Create(context.TODO(), fake.ServiceClient(fakeServer), options).Extract()
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, "vpc-router", r.Name)
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", r.VpcID)
+	th.AssertEquals(t, "8604a0de-7f6b-409a-a47c-a1cc7bc77b2e", r.ID)
+}
+
+func TestListWithVpcID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+
+	fakeServer.Mux.HandleFunc("/v2.0/routers", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "GET")
+		th.TestHeader(t, r, "X-Auth-Token", fake.TokenID)
+
+		th.AssertEquals(t, r.URL.Query().Get("vpc_id"), "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1")
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `
+{
+    "routers": [
+        {
+            "status": "ACTIVE",
+            "external_gateway_info": null,
+            "name": "vpc-router",
+            "admin_state_up": true,
+            "tenant_id": "6b96ff0cb17a4b859e1e575d221683d3",
+            "distributed": false,
+            "id": "8604a0de-7f6b-409a-a47c-a1cc7bc77b2e",
+            "vpc_id": "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1"
+        }
+    ]
+}`)
+	})
+
+	listOpts := routers.ListOpts{
+		VpcID: "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1",
+	}
+
+	allPages, err := routers.List(fake.ServiceClient(fakeServer), listOpts).AllPages(context.TODO())
+	th.AssertNoErr(t, err)
+
+	allRouters, err := routers.ExtractRouters(allPages)
+	th.AssertNoErr(t, err)
+
+	th.AssertEquals(t, 1, len(allRouters))
+	th.AssertEquals(t, "a5c3a4d4-5e0f-4c2a-bb02-e2723de5b8f1", allRouters[0].VpcID)
+	th.AssertEquals(t, "vpc-router", allRouters[0].Name)
+}
