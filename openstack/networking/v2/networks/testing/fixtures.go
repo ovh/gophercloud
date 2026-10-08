@@ -27,9 +27,7 @@ const ListResponse = `
             "router:external": true,
             "port_security_enabled": true,
             "dns_domain": "local.",
-            "mtu": 1500,
-            "provider:network_type": "bgp",
-            "provider:segmentation_id": 1234
+            "mtu": 1500
         },
         {
             "status": "ACTIVE",
@@ -49,9 +47,7 @@ const ListResponse = `
             "router:external": false,
             "port_security_enabled": false,
             "dns_domain": "",
-            "mtu": 1500,
-            "provider:network_type": "vlan",
-            "provider:segmentation_id": 5678
+            "mtu": 1500
         }
     ]
 }`
@@ -76,9 +72,7 @@ const GetResponse = `
         "router:external": true,
         "port_security_enabled": true,
         "dns_domain": "local.",
-        "mtu": 1500,
-        "provider:network_type": "bgp",
-        "provider:segmentation_id": 1234
+        "mtu": 1500
     }
 }`
 
