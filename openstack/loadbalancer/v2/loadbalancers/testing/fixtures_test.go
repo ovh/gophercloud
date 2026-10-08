@@ -633,3 +633,14 @@ func HandleLoadbalancerFailoverSuccessfully(t *testing.T, fakeServer th.FakeServ
 		w.WriteHeader(http.StatusAccepted)
 	})
 }
+
+// HandleLoadbalancerResizeSuccessfully sets up the test server to respond to a loadbalancer resize request.
+func HandleLoadbalancerResizeSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/v2.0/lbaas/loadbalancers/36e08a3e-a78f-4b40-a229-1e7e23eee1ab/resize", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
+		th.TestJSONRequest(t, r, `{"new_flavor_id": "bba40eb2-ee8c-11e9-81b4-2a2ae2dbcce4"}`)
+
+		w.WriteHeader(http.StatusAccepted)
+	})
+}

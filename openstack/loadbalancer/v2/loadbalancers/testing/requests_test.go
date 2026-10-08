@@ -239,3 +239,21 @@ func TestFailoverLoadbalancer(t *testing.T) {
 	res := loadbalancers.Failover(context.TODO(), fake.ServiceClient(fakeServer), "36e08a3e-a78f-4b40-a229-1e7e23eee1ab")
 	th.AssertNoErr(t, res.Err)
 }
+
+func TestResizeLoadbalancer(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleLoadbalancerResizeSuccessfully(t, fakeServer)
+
+	res := loadbalancers.Resize(context.TODO(), fake.ServiceClient(fakeServer), "36e08a3e-a78f-4b40-a229-1e7e23eee1ab", loadbalancers.ResizeOpts{
+		NewFlavorID: "bba40eb2-ee8c-11e9-81b4-2a2ae2dbcce4",
+	})
+	th.AssertNoErr(t, res.Err)
+}
+
+func TestResizeLoadbalancerRequiresAFlavor(t *testing.T) {
+	res := loadbalancers.Resize(context.TODO(), nil, "36e08a3e-a78f-4b40-a229-1e7e23eee1ab", loadbalancers.ResizeOpts{})
+	if res.Err == nil {
+		t.Fatal("expected an error without new_flavor_id")
+	}
+}
