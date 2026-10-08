@@ -136,5 +136,17 @@ Example to Failover a Load Balancers
 	if err != nil {
 		panic(err)
 	}
+
+Example to Resize a Load Balancer (OVHcloud Octavia only)
+
+	lbID := "d67d56a6-4a86-4688-a282-f46444705c64"
+	resizeOpts := loadbalancers.ResizeOpts{
+		NewFlavorID: "bba40eb2-ee8c-11e9-81b4-2a2ae2dbcce4",
+	}
+
+	err := loadbalancers.Resize(context.TODO(), networkClient, lbID, resizeOpts).ExtractErr()
+	if err != nil {
+		panic(err)
+	}
 */
 package loadbalancers

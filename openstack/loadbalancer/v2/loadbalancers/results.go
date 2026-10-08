@@ -264,3 +264,9 @@ type DeleteResult struct {
 type FailoverResult struct {
 	gophercloud.ErrResult
 }
+
+// ResizeResult represents the result of a resize operation. Call its
+// ExtractErr method to determine if the request succeeded or failed.
+type ResizeResult struct {
+	gophercloud.ErrResult
+}

@@ -279,3 +279,38 @@ func Failover(ctx context.Context, c *gophercloud.ServiceClient, id string) (r F
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
 	return
 }
+
+// ResizeOptsBuilder allows extensions to add additional parameters to the
+// Resize request.
+type ResizeOptsBuilder interface {
+	ToLoadBalancerResizeMap() (map[string]any, error)
+}
+
+// ResizeOpts is the common options struct used in this package's Resize
+// operation.
+type ResizeOpts struct {
+	// The ID of the flavor to resize the load balancer to.
+	NewFlavorID string `json:"new_flavor_id" required:"true"`
+}
+
+// ToLoadBalancerResizeMap builds a request body from ResizeOpts.
+func (opts ResizeOpts) ToLoadBalancerResizeMap() (map[string]any, error) {
+	return gophercloud.BuildRequestBody(opts, "")
+}
+
+// Resize changes the flavor of a load balancer: Octavia fails it over onto
+// amphorae of the new flavor. This call is not part of upstream Octavia; it
+// is OVHcloud's downstream patch (upstream change 890215, spec "Load balancer
+// resizing").
+func Resize(ctx context.Context, c *gophercloud.ServiceClient, id string, opts ResizeOptsBuilder) (r ResizeResult) {
+	b, err := opts.ToLoadBalancerResizeMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+	resp, err := c.Put(ctx, resizeRootURL(c, id), b, nil, &gophercloud.RequestOpts{
+		OkCodes: []int{202},
+	})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}

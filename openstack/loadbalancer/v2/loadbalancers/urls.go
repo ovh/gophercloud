@@ -8,6 +8,7 @@ const (
 	statusPath     = "status"
 	statisticsPath = "stats"
 	failoverPath   = "failover"
+	resizePath     = "resize"
 )
 
 func rootURL(c *gophercloud.ServiceClient) string {
@@ -28,4 +29,8 @@ func statisticsRootURL(c *gophercloud.ServiceClient, id string) string {
 
 func failoverRootURL(c *gophercloud.ServiceClient, id string) string {
 	return c.ServiceURL(rootPath, resourcePath, id, failoverPath)
+}
+
+func resizeRootURL(c *gophercloud.ServiceClient, id string) string {
+	return c.ServiceURL(rootPath, resourcePath, id, resizePath)
 }
