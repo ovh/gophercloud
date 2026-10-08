@@ -4,11 +4,12 @@
 package v3
 
 import (
+	"context"
 	"testing"
 
-	"github.com/gophercloud/gophercloud/internal/acceptance/clients"
-	"github.com/gophercloud/gophercloud/openstack/identity/v3/extensions/endpointgroups"
-	th "github.com/gophercloud/gophercloud/testhelper"
+	"github.com/gophercloud/gophercloud/v2/internal/acceptance/clients"
+	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/endpointgroups"
+	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
 
 func TestEndpointGroupsList(t *testing.T) {
@@ -22,7 +23,7 @@ func TestEndpointGroupsList(t *testing.T) {
 	client, err := clients.NewIdentityV3Client()
 	th.AssertNoErr(t, err)
 
-	allPages, err := endpointgroups.List(client, nil).AllPages()
+	allPages, err := endpointgroups.List(client, nil).AllPages(context.TODO())
 	th.AssertNoErr(t, err)
 
 	allEndpointGroups, err := endpointgroups.ExtractEndpointGroups(allPages)
