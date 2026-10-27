@@ -766,3 +766,24 @@ func NewReservationV1Client() (*gophercloud.ServiceClient, error) {
 		Region: os.Getenv("OS_REGION_NAME"),
 	})
 }
+
+// NewVPNGatewayV1Client returns a *ServiceClient for making calls
+// to the OpenStack VPN gateway (ovpi3n) v1 API. An error will be returned
+// if authentication or client creation was not possible.
+func NewVPNGatewayV1Client() (*gophercloud.ServiceClient, error) {
+	ao, err := openstack.AuthOptionsFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := openstack.AuthenticatedClient(context.TODO(), ao)
+	if err != nil {
+		return nil, err
+	}
+
+	client = configureDebug(client)
+
+	return openstack.NewVPNGatewayV1(client, gophercloud.EndpointOpts{
+		Region: os.Getenv("OS_REGION_NAME"),
+	})
+}

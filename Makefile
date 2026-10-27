@@ -43,7 +43,7 @@ coverage:
 	$(GO_TEST) -shuffle on -covermode count -coverprofile cover.out -coverpkg=./... ./...
 .PHONY: coverage
 
-acceptance: acceptance-basic acceptance-baremetal acceptance-blockstorage acceptance-compute acceptance-container acceptance-containerinfra acceptance-db acceptance-dns acceptance-identity acceptance-image acceptance-keymanager acceptance-loadbalancer acceptance-messaging acceptance-metric acceptance-networking acceptance-objectstorage acceptance-orchestration acceptance-placement acceptance-reservation acceptance-sharedfilesystems acceptance-workflow
+acceptance: acceptance-basic acceptance-baremetal acceptance-blockstorage acceptance-compute acceptance-container acceptance-containerinfra acceptance-db acceptance-dns acceptance-identity acceptance-image acceptance-keymanager acceptance-loadbalancer acceptance-messaging acceptance-metric acceptance-networking acceptance-objectstorage acceptance-orchestration acceptance-placement acceptance-reservation acceptance-sharedfilesystems acceptance-vpngateway acceptance-workflow
 .PHONY: acceptance
 
 acceptance-basic:
@@ -129,6 +129,10 @@ acceptance-reservation:
 acceptance-sharedfilesystems:
 	$(GO_TEST) -timeout $(TIMEOUT) -tags "fixtures acceptance" ./internal/acceptance/openstack/sharedfilesystems/...
 .PHONY: acceptance-sharefilesystems
+
+acceptance-vpngateway:
+	$(GO_TEST) -timeout $(TIMEOUT) -tags "fixtures acceptance" ./internal/acceptance/openstack/vpngateway/...
+.PHONY: acceptance-vpngateway
 
 acceptance-workflow:
 	$(GO_TEST) -timeout $(TIMEOUT) -tags "fixtures acceptance" ./internal/acceptance/openstack/workflow/...
