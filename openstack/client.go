@@ -520,3 +520,16 @@ func NewReservationV1(client *gophercloud.ProviderClient, eo gophercloud.Endpoin
 	}
 	return sc, nil
 }
+
+// NewVPNGatewayV1 creates a ServiceClient that may be used with the v1 VPN
+// gateway service (ovpi3n).
+func NewVPNGatewayV1(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "vpn-gateway", 1)
+	if err != nil {
+		return sc, err
+	}
+	if !strings.HasSuffix(strings.TrimSuffix(sc.Endpoint, "/"), "v1") {
+		sc.ResourceBase = sc.Endpoint + "v1/"
+	}
+	return sc, nil
+}
