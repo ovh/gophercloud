@@ -237,8 +237,9 @@ type UpdateOpts struct {
 	// PeerID is the IKE identity of the peer.
 	PeerID string `json:"peer_id,omitempty"`
 
-	// LocalID is the local IKE identity.
-	LocalID string `json:"local_id,omitempty"`
+	// LocalID is the local IKE identity. An empty string unsets it, so the
+	// gateway falls back to its external address.
+	LocalID *string `json:"local_id,omitempty"`
 
 	// PSK replaces the pre-shared key.
 	PSK string `json:"psk,omitempty"`
@@ -275,7 +276,14 @@ type UpdateOpts struct {
 
 // ToConnectionUpdateMap casts an UpdateOpts struct to a map.
 func (opts UpdateOpts) ToConnectionUpdateMap() (map[string]any, error) {
-	return gophercloud.BuildRequestBody(opts, "ipsec_site_connection")
+	b, err := gophercloud.BuildRequestBody(opts, "ipsec_site_connection")
+	if err != nil {
+		return nil, err
+	}
+	if opts.LocalID != nil && *opts.LocalID == "" {
+		b["ipsec_site_connection"].(map[string]any)["local_id"] = nil
+	}
+	return b, nil
 }
 
 // Update allows IPsec site connections to be updated.

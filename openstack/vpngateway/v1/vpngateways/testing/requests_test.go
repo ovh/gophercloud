@@ -174,21 +174,84 @@ func TestRemoveInterface(t *testing.T) {
 	th.CheckDeepEquals(t, RemovedInterface, *actual)
 }
 
+func TestUpdateClearFlavor(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleGatewayClearFlavorSuccessfully(t, fakeServer)
+
+	flavorID := ""
+	options := vpngateways.UpdateOpts{
+		FlavorID: &flavorID,
+	}
+
+	_, err := vpngateways.Update(context.TODO(), fake.ServiceClient(fakeServer), GatewayID, options).Extract()
+	th.AssertNoErr(t, err)
+}
+
 func TestAddExternalGateways(t *testing.T) {
 	fakeServer := th.SetupHTTP()
 	defer fakeServer.Teardown()
-	HandleAddExternalGatewaysSuccessfully(t, fakeServer)
+	HandleAddExternalGatewaysSuccessfully(t, fakeServer, AddExternalGatewaysRequest)
 
 	options := vpngateways.AddExternalGatewaysOpts{
 		ExternalGateways: []vpngateways.ExternalGatewayOpts{
-			{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"},
-			{SubnetID: "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11"},
+			{
+				NetworkID: "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11",
+				ExternalFixedIPs: []vpngateways.ExternalFixedIPOpts{
+					{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"},
+					{SubnetID: "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11", IPAddress: "2001:db8::10"},
+				},
+			},
 		},
 	}
 
 	actual, err := vpngateways.AddExternalGateways(context.TODO(), fake.ServiceClient(fakeServer), GatewayID, options).Extract()
 	th.AssertNoErr(t, err)
 	th.CheckDeepEquals(t, AttachingGateway, *actual)
+}
+
+// TestAddExternalGatewaysNetworkOnly checks the request body only: without
+// fixed IPs, the entry carries the network alone.
+func TestAddExternalGatewaysNetworkOnly(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleAddExternalGatewaysSuccessfully(t, fakeServer, AddExternalGatewaysNetworkRequest)
+
+	options := vpngateways.AddExternalGatewaysOpts{
+		ExternalGateways: []vpngateways.ExternalGatewayOpts{
+			{NetworkID: "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11"},
+		},
+	}
+
+	_, err := vpngateways.AddExternalGateways(context.TODO(), fake.ServiceClient(fakeServer), GatewayID, options).Extract()
+	th.AssertNoErr(t, err)
+}
+
+func TestAddExternalGatewaysRequiresNetwork(t *testing.T) {
+	options := vpngateways.AddExternalGatewaysOpts{
+		ExternalGateways: []vpngateways.ExternalGatewayOpts{
+			{ExternalFixedIPs: []vpngateways.ExternalFixedIPOpts{{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"}}},
+		},
+	}
+	_, err := options.ToVPNGatewayAddExternalGatewaysMap()
+	if err == nil {
+		t.Fatal("expected an error for an external gateway without a network")
+	}
+}
+
+func TestAddExternalGatewaysRequiresSubnetOrAddress(t *testing.T) {
+	options := vpngateways.AddExternalGatewaysOpts{
+		ExternalGateways: []vpngateways.ExternalGatewayOpts{
+			{
+				NetworkID:        "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11",
+				ExternalFixedIPs: []vpngateways.ExternalFixedIPOpts{{}},
+			},
+		},
+	}
+	_, err := options.ToVPNGatewayAddExternalGatewaysMap()
+	if err == nil {
+		t.Fatal("expected an error for an external fixed IP without a subnet or an address")
+	}
 }
 
 func TestRebuild(t *testing.T) {

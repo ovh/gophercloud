@@ -2,6 +2,7 @@ package ipsecpolicies
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/pagination"
@@ -36,14 +37,23 @@ const (
 )
 
 // LifetimeOpts is the lifetime of the IPsec security association.
-// The service stores it as a whole, so an update must carry both parts to
-// keep the units.
 type LifetimeOpts struct {
-	// Units is the unit of the lifetime. Only seconds is accepted.
+	// Units is the unit of the lifetime. Only seconds is accepted, and it is
+	// sent when left unset.
 	Units Unit `json:"units,omitempty"`
 
 	// Value is the lifetime value, at least 60.
 	Value int `json:"value"`
+}
+
+// MarshalJSON always sends the units: the service stores the lifetime as a
+// whole, so one sent without them would be stored without them.
+func (opts LifetimeOpts) MarshalJSON() ([]byte, error) {
+	type lifetime LifetimeOpts
+	if opts.Units == "" {
+		opts.Units = UnitSeconds
+	}
+	return json.Marshal(lifetime(opts))
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the

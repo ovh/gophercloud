@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2"
-	"github.com/gophercloud/gophercloud/v2/internal/acceptance/clients"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
 	"github.com/gophercloud/gophercloud/v2/openstack/vpngateway/v1/ipsecsites"
 	"github.com/gophercloud/gophercloud/v2/openstack/vpngateway/v1/siteconnections"
@@ -33,9 +32,7 @@ func TestSiteConnectionsList(t *testing.T) {
 func TestSiteConnectionsCRUD(t *testing.T) {
 	client := NewClient(t)
 
-	networkClient, err := clients.NewNetworkV2Client()
-	th.AssertNoErr(t, err)
-	externalSubnetID := ExternalSubnetID(t, networkClient)
+	externalNetworkID := ExternalNetworkID(t)
 
 	ikePolicy, err := CreateIKEPolicy(t, client)
 	th.AssertNoErr(t, err)
@@ -57,9 +54,10 @@ func TestSiteConnectionsCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteVPNGateway(t, client, gateway.ID)
 
+	// The network alone: Neutron allocates the addresses.
 	_, err = vpngateways.AddExternalGateways(context.TODO(), client, gateway.ID, vpngateways.AddExternalGatewaysOpts{
 		ExternalGateways: []vpngateways.ExternalGatewayOpts{
-			{SubnetID: externalSubnetID},
+			{NetworkID: externalNetworkID},
 		},
 	}).Extract()
 	th.AssertNoErr(t, err)

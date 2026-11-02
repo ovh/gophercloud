@@ -180,7 +180,8 @@ type UpdateOpts struct {
 	// HA asks for a highly available VPN gateway.
 	HA *bool `json:"ha,omitempty"`
 
-	// FlavorID is the ID of the flavor of the VPN gateway.
+	// FlavorID is the ID of the flavor of the VPN gateway. An empty string
+	// unsets it.
 	FlavorID *string `json:"flavor_id,omitempty"`
 
 	// AvailabilityZoneHints replaces the availability zone hints.
@@ -192,7 +193,14 @@ type UpdateOpts struct {
 
 // ToVPNGatewayUpdateMap casts an UpdateOpts struct to a map.
 func (opts UpdateOpts) ToVPNGatewayUpdateMap() (map[string]any, error) {
-	return gophercloud.BuildRequestBody(opts, "vpn_gateway")
+	b, err := gophercloud.BuildRequestBody(opts, "vpn_gateway")
+	if err != nil {
+		return nil, err
+	}
+	if opts.FlavorID != nil && *opts.FlavorID == "" {
+		b["vpn_gateway"].(map[string]any)["flavor_id"] = nil
+	}
+	return b, nil
 }
 
 // Update allows VPN gateways to be updated.
@@ -277,10 +285,28 @@ func RemoveInterface(ctx context.Context, c *gophercloud.ServiceClient, id strin
 	return
 }
 
-// ExternalGatewayOpts names a subnet of the external network to attach.
+// ExternalFixedIPOpts is an address requested for the external gateway: a
+// subnet of the external network to allocate from, a specific address, or
+// both.
+type ExternalFixedIPOpts struct {
+	// SubnetID is the subnet of the external network to allocate from. With
+	// only IPAddress set, the service finds the subnet holding it.
+	SubnetID string `json:"subnet_id,omitempty" or:"IPAddress"`
+
+	// IPAddress is a specific address to take. It is an admin action by
+	// default.
+	IPAddress string `json:"ip_address,omitempty"`
+}
+
+// ExternalGatewayOpts names the external network to attach, and optionally
+// the addresses to take on it.
 type ExternalGatewayOpts struct {
-	// SubnetID is a subnet of the external network.
-	SubnetID string `json:"subnet_id" required:"true"`
+	// NetworkID is the external network.
+	NetworkID string `json:"network_id" required:"true"`
+
+	// ExternalFixedIPs is the list of addresses to take, at most one IPv4 and
+	// one IPv6. Without it, Neutron allocates the addresses.
+	ExternalFixedIPs []ExternalFixedIPOpts `json:"external_fixed_ips,omitempty"`
 }
 
 // AddExternalGatewaysOptsBuilder allows extensions to add additional
@@ -292,8 +318,8 @@ type AddExternalGatewaysOptsBuilder interface {
 // AddExternalGatewaysOpts represents the options for attaching a VPN gateway
 // to an external network.
 type AddExternalGatewaysOpts struct {
-	// ExternalGateways names one or two subnets, at most one IPv4 and one
-	// IPv6, all on the same external network.
+	// ExternalGateways is the external network to attach. The service accepts
+	// exactly one entry: a gateway holds a single external network.
 	ExternalGateways []ExternalGatewayOpts `json:"external_gateways" required:"true"`
 }
 

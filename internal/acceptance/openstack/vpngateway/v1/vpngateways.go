@@ -15,14 +15,19 @@ import (
 	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
 
-// ExternalSubnetID returns the ID of an IPv4 subnet of the external network
-// named by OS_EXTGW_ID, skipping the test when it is unset.
-func ExternalSubnetID(t *testing.T, networkClient *gophercloud.ServiceClient) string {
+// ExternalNetworkID returns the ID of the external network named by
+// OS_EXTGW_ID, skipping the test when it is unset.
+func ExternalNetworkID(t *testing.T) string {
 	networkID := os.Getenv("OS_EXTGW_ID")
 	if networkID == "" {
 		t.Skip("OS_EXTGW_ID must be set to attach a VPN gateway to an external network")
 	}
+	return networkID
+}
 
+// ExternalSubnetID returns the ID of an IPv4 subnet of the external network
+// networkID.
+func ExternalSubnetID(t *testing.T, networkClient *gophercloud.ServiceClient, networkID string) string {
 	allPages, err := subnets.List(networkClient, subnets.ListOpts{
 		NetworkID: networkID,
 		IPVersion: 4,

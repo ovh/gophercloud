@@ -115,3 +115,23 @@ func TestUpdate(t *testing.T) {
 	th.AssertNoErr(t, err)
 	th.CheckDeepEquals(t, UpdatedPolicy, *actual)
 }
+
+// The service stores a lifetime as a whole, so one given by its value alone
+// must still carry its units.
+func TestCreateLifetimeDefaultsToSeconds(t *testing.T) {
+	options := ipsecpolicies.CreateOpts{
+		Lifetime: &ipsecpolicies.LifetimeOpts{Value: 7200},
+	}
+	b, err := options.ToPolicyCreateMap()
+	th.AssertNoErr(t, err)
+	th.AssertJSONEquals(t, `{"ipsec_policy": {"lifetime": {"units": "seconds", "value": 7200}}}`, b)
+}
+
+func TestUpdateLifetimeDefaultsToSeconds(t *testing.T) {
+	options := ipsecpolicies.UpdateOpts{
+		Lifetime: &ipsecpolicies.LifetimeOpts{Value: 7200},
+	}
+	b, err := options.ToPolicyUpdateMap()
+	th.AssertNoErr(t, err)
+	th.AssertJSONEquals(t, `{"ipsec_policy": {"lifetime": {"units": "seconds", "value": 7200}}}`, b)
+}
