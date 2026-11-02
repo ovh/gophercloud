@@ -58,7 +58,14 @@ Example to Attach a VPN Gateway to an External Network
 
 	opts := vpngateways.AddExternalGatewaysOpts{
 		ExternalGateways: []vpngateways.ExternalGatewayOpts{
-			{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"},
+			{
+				NetworkID: "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11",
+				// Optional: the subnet to allocate from. Without it, Neutron
+				// picks the addresses; a specific IPAddress is admin-only.
+				ExternalFixedIPs: []vpngateways.ExternalFixedIPOpts{
+					{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"},
+				},
+			},
 		},
 	}
 

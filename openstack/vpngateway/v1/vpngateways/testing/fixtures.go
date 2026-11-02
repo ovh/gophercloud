@@ -247,15 +247,45 @@ const AddExternalGatewaysRequest = `
 {
     "router": {
         "external_gateways": [
-            {"subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"},
-            {"subnet_id": "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11"}
+            {
+                "network_id": "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11",
+                "external_fixed_ips": [
+                    {"subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"},
+                    {
+                        "subnet_id": "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11",
+                        "ip_address": "2001:db8::10"
+                    }
+                ]
+            }
         ]
     }
 }
 `
 
+// AddExternalGatewaysNetworkRequest names the external network only, so
+// Neutron allocates the addresses.
+const AddExternalGatewaysNetworkRequest = `
+{
+    "router": {
+        "external_gateways": [
+            {"network_id": "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11"}
+        ]
+    }
+}
+`
+
+// ClearFlavorRequest unsets the flavor of a gateway.
+const ClearFlavorRequest = `
+{
+    "vpn_gateway": {
+        "flavor_id": null
+    }
+}
+`
+
 // AddExternalGatewaysBody shows the external gateway before the worker has
-// created its port: no port, and fixed IPs without addresses.
+// created its port: no port, and the requested fixed IPs, with an address
+// only where one was asked for.
 const AddExternalGatewaysBody = `
 {
     "vpn_gateway": {
@@ -271,7 +301,10 @@ const AddExternalGatewaysBody = `
                 "port_id": null,
                 "fixed_ips": [
                     {"subnet_id": "a2f1f29d-571b-4533-907f-5803ab96ead1"},
-                    {"subnet_id": "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11"}
+                    {
+                        "subnet_id": "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11",
+                        "ip_address": "2001:db8::10"
+                    }
                 ],
                 "status": "PENDING_CREATE"
             }
@@ -426,7 +459,7 @@ var (
 				NetworkID: "ae3b6c4b-3e0b-4c3e-9b8a-3f3f0d1c2e11",
 				FixedIPs: []vpngateways.FixedIP{
 					{SubnetID: "a2f1f29d-571b-4533-907f-5803ab96ead1"},
-					{SubnetID: "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11"},
+					{SubnetID: "c6d1a3b2-0e5f-4a8b-9c7d-6e5f4a3b2c11", IPAddress: "2001:db8::10"},
 				},
 				Status: vpngateways.StatusPendingCreate,
 			},
@@ -489,8 +522,12 @@ func HandleRemoveInterfaceSuccessfully(t *testing.T, fakeServer th.FakeServer) {
 	handle(t, fakeServer, "/v1/vpn_gateways/"+GatewayID+"/remove_router_interface", "PUT", InterfaceRequest, http.StatusOK, RemoveInterfaceBody)
 }
 
-func HandleAddExternalGatewaysSuccessfully(t *testing.T, fakeServer th.FakeServer) {
-	handle(t, fakeServer, "/v1/vpn_gateways/"+GatewayID+"/add_external_gateways", "PUT", AddExternalGatewaysRequest, http.StatusOK, AddExternalGatewaysBody)
+func HandleGatewayClearFlavorSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	handle(t, fakeServer, "/v1/vpn_gateways/"+GatewayID, "PUT", ClearFlavorRequest, http.StatusOK, UpdatedGatewayBody)
+}
+
+func HandleAddExternalGatewaysSuccessfully(t *testing.T, fakeServer th.FakeServer, request string) {
+	handle(t, fakeServer, "/v1/vpn_gateways/"+GatewayID+"/add_external_gateways", "PUT", request, http.StatusOK, AddExternalGatewaysBody)
 }
 
 func HandleRebuildSuccessfully(t *testing.T, fakeServer th.FakeServer, request string) {

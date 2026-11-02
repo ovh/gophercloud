@@ -137,13 +137,14 @@ func TestUpdate(t *testing.T) {
 
 	name := "updatedname"
 	description := "updated connection"
+	localID := "203.0.113.10"
 	adminStateUp := false
 	options := siteconnections.UpdateOpts{
 		Name:          &name,
 		Description:   &description,
 		PeerAddress:   "198.51.100.30",
 		PeerID:        "198.51.100.30",
-		LocalID:       "203.0.113.10",
+		LocalID:       &localID,
 		PSK:           "another-pre-shared-key",
 		Priority:      2,
 		AdminStateUp:  &adminStateUp,
@@ -161,4 +162,18 @@ func TestUpdate(t *testing.T) {
 	actual, err := siteconnections.Update(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID, options).Extract()
 	th.AssertNoErr(t, err)
 	th.CheckDeepEquals(t, UpdatedConnection, *actual)
+}
+
+func TestUpdateClearLocalID(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleConnectionClearLocalIDSuccessfully(t, fakeServer)
+
+	localID := ""
+	options := siteconnections.UpdateOpts{
+		LocalID: &localID,
+	}
+
+	_, err := siteconnections.Update(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID, options).Extract()
+	th.AssertNoErr(t, err)
 }

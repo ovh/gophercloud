@@ -86,9 +86,10 @@ func TestVPNGatewaysCRUD(t *testing.T) {
 func TestVPNGatewaysAttachments(t *testing.T) {
 	client := NewClient(t)
 
+	externalNetworkID := ExternalNetworkID(t)
 	networkClient, err := clients.NewNetworkV2Client()
 	th.AssertNoErr(t, err)
-	externalSubnetID := ExternalSubnetID(t, networkClient)
+	externalSubnetID := ExternalSubnetID(t, networkClient, externalNetworkID)
 
 	network, err := networking.CreateNetwork(t, networkClient)
 	th.AssertNoErr(t, err)
@@ -102,14 +103,22 @@ func TestVPNGatewaysAttachments(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteVPNGateway(t, client, gateway.ID)
 
+	// Pick the subnet to allocate from; the address itself is left to Neutron,
+	// asking for one being an admin action.
 	externalOpts := vpngateways.AddExternalGatewaysOpts{
 		ExternalGateways: []vpngateways.ExternalGatewayOpts{
-			{SubnetID: externalSubnetID},
+			{
+				NetworkID: externalNetworkID,
+				ExternalFixedIPs: []vpngateways.ExternalFixedIPOpts{
+					{SubnetID: externalSubnetID},
+				},
+			},
 		},
 	}
 	gateway, err = vpngateways.AddExternalGateways(context.TODO(), client, gateway.ID, externalOpts).Extract()
 	th.AssertNoErr(t, err)
 	th.AssertEquals(t, 1, len(gateway.ExternalGateways))
+	th.AssertEquals(t, externalNetworkID, gateway.ExternalGateways[0].NetworkID)
 
 	gateway, err = WaitForAttachments(client, gateway.ID)
 	th.AssertNoErr(t, err)
@@ -117,6 +126,8 @@ func TestVPNGatewaysAttachments(t *testing.T) {
 	if gateway.ExternalIPv4 == "" {
 		t.Fatal("Expected an external IPv4 address once the external gateway is ACTIVE")
 	}
+	th.AssertEquals(t, 1, len(gateway.ExternalGateways[0].FixedIPs))
+	th.AssertEquals(t, externalSubnetID, gateway.ExternalGateways[0].FixedIPs[0].SubnetID)
 
 	iface, err := vpngateways.AddInterface(context.TODO(), client, gateway.ID, vpngateways.AddInterfaceOpts{
 		SubnetID: subnet.ID,

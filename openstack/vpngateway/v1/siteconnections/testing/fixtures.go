@@ -258,6 +258,20 @@ func HandleConnectionUpdateSuccessfully(t *testing.T, fakeServer th.FakeServer) 
 	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID, "PUT", UpdateRequest, http.StatusOK, UpdatedConnectionBody)
 }
 
+// ClearLocalIDRequest unsets the local IKE identity, so the gateway falls
+// back to its external address.
+const ClearLocalIDRequest = `
+{
+    "ipsec_site_connection": {
+        "local_id": null
+    }
+}
+`
+
+func HandleConnectionClearLocalIDSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID, "PUT", ClearLocalIDRequest, http.StatusOK, UpdatedConnectionBody)
+}
+
 func HandleConnectionDeletionSuccessfully(t *testing.T, fakeServer th.FakeServer) {
 	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID, "DELETE", "", http.StatusNoContent, "")
 }
