@@ -60,7 +60,6 @@ func TestCreateRequiresFields(t *testing.T) {
 	for _, missing := range []func(*siteconnections.CreateOpts){
 		func(o *siteconnections.CreateOpts) { o.IPsecSiteID = "" },
 		func(o *siteconnections.CreateOpts) { o.PeerAddress = "" },
-		func(o *siteconnections.CreateOpts) { o.PSK = "" },
 		func(o *siteconnections.CreateOpts) { o.IKEPolicyID = "" },
 		func(o *siteconnections.CreateOpts) { o.IPsecPolicyID = "" },
 	} {
@@ -176,4 +175,41 @@ func TestUpdateClearLocalID(t *testing.T) {
 
 	_, err := siteconnections.Update(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID, options).Extract()
 	th.AssertNoErr(t, err)
+}
+
+func TestCreateWithoutPSK(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleConnectionCreationWithoutPSKSuccessfully(t, fakeServer)
+
+	options := siteconnections.CreateOpts{
+		IPsecSiteID:   "9d1e6c2a-4b3f-4a5e-8d7c-6b5a4f3e2d1c",
+		PeerAddress:   "198.51.100.20",
+		IKEPolicyID:   "f2b08c1e-aa81-4668-8ae1-1401bcb0576c",
+		IPsecPolicyID: "e3b0c442-98fc-4c14-9afb-f4c8996fb924",
+	}
+	actual, err := siteconnections.Create(context.TODO(), fake.ServiceClient(fakeServer), options).Extract()
+	th.AssertNoErr(t, err)
+	th.AssertEquals(t, GeneratedPSK, actual.PSK)
+}
+
+func TestGetPSK(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleGetPSKSuccessfully(t, fakeServer)
+
+	actual, err := siteconnections.GetPSK(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID).Extract()
+	th.AssertNoErr(t, err)
+	th.AssertEquals(t, GeneratedPSK, actual)
+}
+
+func TestRegeneratePSK(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleRegeneratePSKSuccessfully(t, fakeServer)
+
+	actual, err := siteconnections.RegeneratePSK(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID).Extract()
+	th.AssertNoErr(t, err)
+	th.AssertEquals(t, GeneratedPSK, actual.PSK)
+	th.AssertEquals(t, siteconnections.StatusPendingUpdate, actual.Status)
 }

@@ -2,6 +2,7 @@ package testing
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -306,5 +307,58 @@ func HandleConnectionListSuccessfully(t *testing.T, fakeServer th.FakeServer) {
 		default:
 			t.Fatalf("Unexpected marker: [%s]", r.Form.Get("marker"))
 		}
+	})
+}
+
+const GeneratedPSK = "Gx7kP2mQ9vT4wZ8nB3cR6yH1jL5sD0fA2eU7iO9pK4tN6qW8"
+
+const CreateWithoutPSKRequest = `
+{
+    "ipsec_site_connection": {
+        "ipsec_site_id": "9d1e6c2a-4b3f-4a5e-8d7c-6b5a4f3e2d1c",
+        "peer_address": "198.51.100.20",
+        "ikepolicy_id": "f2b08c1e-aa81-4668-8ae1-1401bcb0576c",
+        "ipsecpolicy_id": "e3b0c442-98fc-4c14-9afb-f4c8996fb924"
+    }
+}
+`
+
+const GeneratedPSKConnectionBody = `
+{
+    "ipsec_site_connection": {
+        "id": "5c561d9d-eaea-45f6-ae3e-08d1a7080828",
+        "psk_set": true,
+        "psk": "Gx7kP2mQ9vT4wZ8nB3cR6yH1jL5sD0fA2eU7iO9pK4tN6qW8",
+        "status": "PENDING_UPDATE"
+    }
+}
+`
+
+const GetPSKBody = `
+{
+    "psk": "Gx7kP2mQ9vT4wZ8nB3cR6yH1jL5sD0fA2eU7iO9pK4tN6qW8"
+}
+`
+
+func HandleConnectionCreationWithoutPSKSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	handle(t, fakeServer, "/v1/ipsec_site_connections", "POST", CreateWithoutPSKRequest, http.StatusCreated, GeneratedPSKConnectionBody)
+}
+
+func HandleGetPSKSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID+"/psk", "GET", "", http.StatusOK, GetPSKBody)
+}
+
+// HandleRegeneratePSKSuccessfully checks that a regeneration carries no body.
+func HandleRegeneratePSKSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	fakeServer.Mux.HandleFunc("/v1/ipsec_site_connections/"+ConnectionID+"/regenerate_psk", func(w http.ResponseWriter, r *http.Request) {
+		th.TestMethod(t, r, "PUT")
+		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
+		body, err := io.ReadAll(r.Body)
+		th.AssertNoErr(t, err)
+		th.AssertEquals(t, "", string(body))
+
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, GeneratedPSKConnectionBody)
 	})
 }

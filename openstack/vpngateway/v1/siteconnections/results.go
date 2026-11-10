@@ -50,9 +50,12 @@ type Connection struct {
 	// AuthMode is the authentication mode.
 	AuthMode string `json:"auth_mode"`
 
-	// PSKSet tells whether a pre-shared key is set. The key itself is never
-	// returned.
+	// PSKSet tells whether a pre-shared key is set.
 	PSKSet bool `json:"psk_set"`
+
+	// PSK is set only in the response of a Create without a key and of a
+	// RegeneratePSK: the generated key. Read it later with GetPSK.
+	PSK string `json:"psk"`
 
 	// Priority is the priority of the tunnel within its site, lower is
 	// preferred.
@@ -189,4 +192,19 @@ type DeleteResult struct {
 // to interpret it as a Connection.
 type UpdateResult struct {
 	commonResult
+}
+
+// GetPSKResult represents the result of a GetPSK operation. Call its Extract
+// method to interpret it as the pre-shared key.
+type GetPSKResult struct {
+	gophercloud.Result
+}
+
+// Extract returns the pre-shared key.
+func (r GetPSKResult) Extract() (string, error) {
+	var s struct {
+		PSK string `json:"psk"`
+	}
+	err := r.ExtractInto(&s)
+	return s.PSK, err
 }

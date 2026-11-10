@@ -80,9 +80,10 @@ type CreateOpts struct {
 	// AuthMode is the authentication mode. Only psk is accepted.
 	AuthMode AuthMode `json:"auth_mode,omitempty"`
 
-	// PSK is the pre-shared key, 8 to 255 printable ASCII characters. It is
-	// never returned.
-	PSK string `json:"psk" required:"true"`
+	// PSK is the pre-shared key, printable ASCII, at least the service's
+	// min_psk_length (16 or more) and at most 255 characters. Without it, the
+	// service generates one and returns it once, in Connection.PSK.
+	PSK string `json:"psk,omitempty"`
 
 	// Priority picks the preferred tunnel of the site: lower is preferred,
 	// unique per site. The default is one more than the highest in use.
@@ -294,6 +295,24 @@ func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts U
 		return
 	}
 	resp, err := c.Put(ctx, resourceURL(c, id), b, &r.Body, &gophercloud.RequestOpts{
+		OkCodes: []int{200},
+	})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
+// GetPSK returns the pre-shared key of an IPsec site connection.
+func GetPSK(ctx context.Context, c *gophercloud.ServiceClient, id string) (r GetPSKResult) {
+	resp, err := c.Get(ctx, pskURL(c, id), &r.Body, nil)
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
+// RegeneratePSK replaces the pre-shared key of an IPsec site connection with
+// a generated one, returned once in Connection.PSK. The connection is
+// PENDING_UPDATE until the new key is configured on the VPN gateway.
+func RegeneratePSK(ctx context.Context, c *gophercloud.ServiceClient, id string) (r UpdateResult) {
+	resp, err := c.Put(ctx, regeneratePSKURL(c, id), nil, &r.Body, &gophercloud.RequestOpts{
 		OkCodes: []int{200},
 	})
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)

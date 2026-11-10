@@ -11,3 +11,11 @@ func rootURL(c *gophercloud.ServiceClient) string {
 func resourceURL(c *gophercloud.ServiceClient, id string) string {
 	return c.ServiceURL(resourcePath, id)
 }
+
+func pskURL(c *gophercloud.ServiceClient, id string) string {
+	return c.ServiceURL(resourcePath, id, "psk")
+}
+
+func regeneratePSKURL(c *gophercloud.ServiceClient, id string) string {
+	return c.ServiceURL(resourcePath, id, "regenerate_psk")
+}
