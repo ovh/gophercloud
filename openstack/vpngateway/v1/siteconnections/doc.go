@@ -64,6 +64,21 @@ Example to Update an IPsec Site Connection
 		panic(err)
 	}
 
+Example to Read the Pre-Shared Key of an IPsec Site Connection
+
+	psk, err := siteconnections.GetPSK(context.TODO(), vpnClient, "5c561d9d-eaea-45f6-ae3e-08d1a7080828").Extract()
+	if err != nil {
+		panic(err)
+	}
+
+Example to Regenerate the Pre-Shared Key of an IPsec Site Connection
+
+	connection, err := siteconnections.RegeneratePSK(context.TODO(), vpnClient, "5c561d9d-eaea-45f6-ae3e-08d1a7080828").Extract()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(connection.PSK)
+
 Example to Delete an IPsec Site Connection
 
 	err := siteconnections.Delete(context.TODO(), vpnClient, "5c561d9d-eaea-45f6-ae3e-08d1a7080828").ExtractErr()
