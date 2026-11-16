@@ -91,6 +91,11 @@ type Connection struct {
 	// tunnel is configured on the gateway, not that it is up.
 	Status string `json:"status"`
 
+	// OperationalStatus is the status the health checker observes: UP, DOWN,
+	// DISABLED or UNKNOWN. It is empty until the connection is ACTIVE and
+	// checked.
+	OperationalStatus string `json:"operational_status"`
+
 	// CreatedAt is the time the connection was created.
 	CreatedAt time.Time `json:"-"`
 

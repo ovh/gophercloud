@@ -78,6 +78,17 @@ const ConnectionBody = `
 }
 `
 
+// CheckedConnectionBody is an ACTIVE connection the health checker saw down.
+const CheckedConnectionBody = `
+{
+    "ipsec_site_connection": {
+        "id": "5c561d9d-eaea-45f6-ae3e-08d1a7080828",
+        "status": "ACTIVE",
+        "operational_status": "DOWN"
+    }
+}
+`
+
 const UpdateRequest = `
 {
     "ipsec_site_connection": {
@@ -253,6 +264,10 @@ func HandleConnectionCreationSuccessfully(t *testing.T, fakeServer th.FakeServer
 
 func HandleConnectionGetSuccessfully(t *testing.T, fakeServer th.FakeServer) {
 	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID, "GET", "", http.StatusOK, ConnectionBody)
+}
+
+func HandleCheckedConnectionGetSuccessfully(t *testing.T, fakeServer th.FakeServer) {
+	handle(t, fakeServer, "/v1/ipsec_site_connections/"+ConnectionID, "GET", "", http.StatusOK, CheckedConnectionBody)
 }
 
 func HandleConnectionUpdateSuccessfully(t *testing.T, fakeServer th.FakeServer) {
