@@ -75,6 +75,10 @@ type VPNGateway struct {
 	// Status is the provisioning status of the VPN gateway.
 	Status string `json:"status"`
 
+	// OperationalStatus is the status the health checker observes: UP, DOWN
+	// or UNKNOWN. It is empty until the VPN gateway is ACTIVE and checked.
+	OperationalStatus string `json:"operational_status"`
+
 	// ExternalIPv4 is the first IPv4 address of the active external gateway.
 	ExternalIPv4 string `json:"external_ipv4"`
 

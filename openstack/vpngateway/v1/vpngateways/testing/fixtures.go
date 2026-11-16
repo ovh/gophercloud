@@ -77,6 +77,7 @@ const GatewayBody = `
         "description": "VPN gateway",
         "admin_state_up": true,
         "status": "ACTIVE",
+        "operational_status": "UP",
         "external_ipv4": "203.0.113.10",
         "external_ipv6": "2001:db8::10",
         "ha": false,
@@ -356,15 +357,16 @@ var (
 	}
 
 	Gateway = vpngateways.VPNGateway{
-		ID:           GatewayID,
-		ProjectID:    "9145d91459d248b1b02fdaca97c6a75d",
-		Name:         "gateway",
-		Description:  "VPN gateway",
-		AdminStateUp: true,
-		Status:       vpngateways.StatusActive,
-		ExternalIPv4: "203.0.113.10",
-		ExternalIPv6: "2001:db8::10",
-		FlavorID:     "b8b9cc5a-0b05-4b1e-9d0a-1d6c0f5a3e01",
+		ID:                GatewayID,
+		ProjectID:         "9145d91459d248b1b02fdaca97c6a75d",
+		Name:              "gateway",
+		Description:       "VPN gateway",
+		AdminStateUp:      true,
+		Status:            vpngateways.StatusActive,
+		OperationalStatus: "UP",
+		ExternalIPv4:      "203.0.113.10",
+		ExternalIPv6:      "2001:db8::10",
+		FlavorID:          "b8b9cc5a-0b05-4b1e-9d0a-1d6c0f5a3e01",
 		Routes: []vpngateways.Route{
 			{DestinationCIDR: "10.20.0.0/16", NextHop: "10.0.0.254"},
 		},

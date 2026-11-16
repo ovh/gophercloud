@@ -81,6 +81,17 @@ func TestGet(t *testing.T) {
 	th.CheckDeepEquals(t, Connection, *actual)
 }
 
+func TestGetOperationalStatus(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleCheckedConnectionGetSuccessfully(t, fakeServer)
+
+	actual, err := siteconnections.Get(context.TODO(), fake.ServiceClient(fakeServer), ConnectionID).Extract()
+	th.AssertNoErr(t, err)
+	th.AssertEquals(t, siteconnections.StatusActive, actual.Status)
+	th.AssertEquals(t, "DOWN", actual.OperationalStatus)
+}
+
 func TestDelete(t *testing.T) {
 	fakeServer := th.SetupHTTP()
 	defer fakeServer.Teardown()
