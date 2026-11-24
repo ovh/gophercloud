@@ -81,6 +81,15 @@ type Router struct {
 	// RevisionNumber optionally set via extensions/standard-attr-revisions
 	RevisionNumber int `json:"revision_number"`
 
+	// VpcID is the VPC identifier. 1-to-1 relation with a router.
+	VpcID string `json:"vpc_id"`
+
+	// VpcProvisioningStatus is the sync state of the router's NAT gateway
+	// with the backend: ACTIVE, PENDING_CREATE, PENDING_UPDATE,
+	// PENDING_DELETE or ERROR. It is empty while the router has no NAT
+	// gateway.
+	VpcProvisioningStatus string `json:"vpc_provisioning_status"`
+
 	// Timestamp when the router was created
 	CreatedAt time.Time `json:"-"`
 
