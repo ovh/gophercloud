@@ -1,6 +1,9 @@
 /*
 Package vpcs provides the ability to retrieve and manage Virtual Private Clouds
-(VPCs) through the vpc extension of the Neutron API.
+(VPCs) through the VPC extension of OVHcloud's Neutron.
+
+OVHcloud only: this extension is not part of upstream Neutron, and a standard
+Neutron does not serve the endpoints of this package.
 
 A VPC owns the IPv4 and IPv6 CIDR blocks that its subnets are allocated from. Networks
 and routers are attached to a VPC at creation through their VpcID attribute.

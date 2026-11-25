@@ -1,6 +1,9 @@
 /*
 Package routetables provides the ability to retrieve and manage route tables
-through the vpc extension of the Neutron API.
+through the VPC extension of OVHcloud's Neutron.
+
+OVHcloud only: this extension is not part of upstream Neutron, and a standard
+Neutron does not serve the endpoints of this package.
 
 A route table belongs to a VPC router and holds routes and subnet
 associations. Routes and subnets are managed through the AddRoutes,

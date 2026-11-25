@@ -95,6 +95,7 @@ type Network struct {
 	RevisionNumber int `json:"revision_number"`
 
 	// VpcID is the VPC identifier. Set at creation, cannot be updated.
+	// OVHcloud VPC extension only: always empty on a standard Neutron.
 	VpcID string `json:"vpc_id"`
 }
 

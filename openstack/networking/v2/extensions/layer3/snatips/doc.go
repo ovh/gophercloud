@@ -1,6 +1,9 @@
 /*
 Package snatips provides the ability to retrieve and manage SNAT IPs through
-the vpc extension of the Neutron API.
+the VPC extension of OVHcloud's Neutron.
+
+OVHcloud only: this extension is not part of upstream Neutron, and a standard
+Neutron does not serve the endpoints of this package.
 
 A SNAT IP is a public address reserved on an external network, in a given
 availability zone, so that the gateway port of a VPC router can be given this

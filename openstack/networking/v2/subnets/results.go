@@ -130,12 +130,14 @@ type Subnet struct {
 	SegmentID string `json:"segment_id"`
 
 	// VpcID is the VPC identifier, inherited from the parent network.
-	// It is empty on subnets that are not in a VPC.
+	// It is empty on subnets that are not in a VPC. OVHcloud VPC extension
+	// only: always empty on a standard Neutron.
 	VpcID string `json:"vpc_id"`
 
 	// VpcProvisioningStatus is the sync state of the VPC binding with the
 	// backend: ACTIVE, PENDING_CREATE, PENDING_UPDATE, PENDING_DELETE or
-	// ERROR. It is empty on subnets that are not in a VPC.
+	// ERROR. It is empty on subnets that are not in a VPC. OVHcloud VPC
+	// extension only: always empty on a standard Neutron.
 	VpcProvisioningStatus string `json:"vpc_provisioning_status"`
 
 	// Timestamp when the subnet was created

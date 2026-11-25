@@ -40,6 +40,8 @@ func (opts ListOpts) ToVpcListQuery() (string, error) {
 // List returns a Pager which allows you to iterate over a collection of
 // VPCs. It accepts a ListOpts struct, which allows you to filter and sort
 // the returned collection for greater efficiency.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 	url := listURL(c)
 	if opts != nil {
@@ -55,6 +57,8 @@ func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 }
 
 // Get retrieves a specific VPC based on its ID.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Get(ctx context.Context, c *gophercloud.ServiceClient, id string) (r GetResult) {
 	resp, err := c.Get(ctx, getURL(c, id), &r.Body, nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
@@ -95,6 +99,8 @@ func (opts CreateOpts) ToVpcCreateMap() (map[string]any, error) {
 
 // Create accepts a CreateOpts struct and creates a new VPC using the values
 // provided. The VPC is PENDING_CREATE until the backend provisions it.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Create(ctx context.Context, c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToVpcCreateMap()
 	if err != nil {
@@ -131,6 +137,8 @@ func (opts UpdateOpts) ToVpcUpdateMap() (map[string]any, error) {
 // Update accepts an UpdateOpts struct and updates an existing VPC using the
 // values provided. The request fails with a 409 while the VPC is
 // transitioning.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToVpcUpdateMap()
 	if err != nil {
@@ -147,6 +155,8 @@ func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts U
 // Delete accepts a unique ID and deletes the VPC associated with it. The
 // request fails with a 409 while networks, subnets, ports or a router are
 // still attached to the VPC, or while it is transitioning.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Delete(ctx context.Context, c *gophercloud.ServiceClient, id string) (r DeleteResult) {
 	resp, err := c.Delete(ctx, deleteURL(c, id), nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)

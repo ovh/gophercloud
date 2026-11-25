@@ -41,6 +41,8 @@ func (opts ListOpts) ToRouteTableListQuery() (string, error) {
 // List returns a Pager which allows you to iterate over a collection of
 // route tables. It accepts a ListOpts struct, which allows you to filter and
 // sort the returned collection for greater efficiency.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 	url := rootURL(c)
 	if opts != nil {
@@ -56,6 +58,8 @@ func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 }
 
 // Get retrieves a specific route table based on its unique ID.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Get(ctx context.Context, c *gophercloud.ServiceClient, id string) (r GetResult) {
 	resp, err := c.Get(ctx, resourceURL(c, id), &r.Body, nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
@@ -90,6 +94,8 @@ func (opts CreateOpts) ToRouteTableCreateMap() (map[string]any, error) {
 }
 
 // Create accepts a CreateOpts struct and creates a new route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Create(ctx context.Context, c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToRouteTableCreateMap()
 	if err != nil {
@@ -124,6 +130,8 @@ func (opts UpdateOpts) ToRouteTableUpdateMap() (map[string]any, error) {
 }
 
 // Update accepts an UpdateOpts struct and updates a route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToRouteTableUpdateMap()
 	if err != nil {
@@ -139,6 +147,8 @@ func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts U
 
 // Delete accepts a route table ID and deletes it. The request fails with a
 // 409 while subnets are still associated with the route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Delete(ctx context.Context, c *gophercloud.ServiceClient, id string) (r DeleteResult) {
 	resp, err := c.Delete(ctx, resourceURL(c, id), nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
@@ -180,6 +190,8 @@ func (opts AddRoutesOpts) ToRouteTableAddRoutesMap() (map[string]any, error) {
 }
 
 // AddRoutes adds routes to a route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func AddRoutes(ctx context.Context, c *gophercloud.ServiceClient, id string, opts AddRoutesOptsBuilder) (r AddRoutesResult) {
 	b, err := opts.ToRouteTableAddRoutesMap()
 	if err != nil {
@@ -211,6 +223,8 @@ func (opts RemoveRoutesOpts) ToRouteTableRemoveRoutesMap() (map[string]any, erro
 }
 
 // RemoveRoutes removes routes from a route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func RemoveRoutes(ctx context.Context, c *gophercloud.ServiceClient, id string, opts RemoveRoutesOptsBuilder) (r RemoveRoutesResult) {
 	b, err := opts.ToRouteTableRemoveRoutesMap()
 	if err != nil {
@@ -247,6 +261,8 @@ func (opts AddSubnetsOpts) ToRouteTableAddSubnetsMap() (map[string]any, error) {
 }
 
 // AddSubnets associates subnets with a route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func AddSubnets(ctx context.Context, c *gophercloud.ServiceClient, id string, opts AddSubnetsOptsBuilder) (r AddSubnetsResult) {
 	b, err := opts.ToRouteTableAddSubnetsMap()
 	if err != nil {
@@ -283,6 +299,8 @@ func (opts RemoveSubnetsOpts) ToRouteTableRemoveSubnetsMap() (map[string]any, er
 }
 
 // RemoveSubnets dissociates subnets from a route table.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func RemoveSubnets(ctx context.Context, c *gophercloud.ServiceClient, id string, opts RemoveSubnetsOptsBuilder) (r RemoveSubnetsResult) {
 	b, err := opts.ToRouteTableRemoveSubnetsMap()
 	if err != nil {

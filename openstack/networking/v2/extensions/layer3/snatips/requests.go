@@ -44,6 +44,8 @@ func (opts ListOpts) ToSnatIPListQuery() (string, error) {
 // List returns a Pager which allows you to iterate over a collection of
 // SNAT IPs. It accepts a ListOpts struct, which allows you to filter and sort
 // the returned collection for greater efficiency.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 	url := listURL(c)
 	if opts != nil {
@@ -59,6 +61,8 @@ func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
 }
 
 // Get retrieves a specific SNAT IP based on its ID.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Get(ctx context.Context, c *gophercloud.ServiceClient, id string) (r GetResult) {
 	resp, err := c.Get(ctx, getURL(c, id), &r.Body, nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
@@ -98,6 +102,8 @@ func (opts CreateOpts) ToSnatIPCreateMap() (map[string]any, error) {
 
 // Create accepts a CreateOpts struct and reserves a new SNAT IP using the
 // values provided.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Create(ctx context.Context, c *gophercloud.ServiceClient, opts CreateOptsBuilder) (r CreateResult) {
 	b, err := opts.ToSnatIPCreateMap()
 	if err != nil {
@@ -130,6 +136,8 @@ func (opts UpdateOpts) ToSnatIPUpdateMap() (map[string]any, error) {
 
 // Update accepts an UpdateOpts struct and updates an existing SNAT IP using
 // the values provided.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts UpdateOptsBuilder) (r UpdateResult) {
 	b, err := opts.ToSnatIPUpdateMap()
 	if err != nil {
@@ -146,6 +154,8 @@ func Update(ctx context.Context, c *gophercloud.ServiceClient, id string, opts U
 // Delete accepts a unique ID and releases the SNAT IP associated with it.
 // The request fails with a 409 while a router gateway port carries the
 // address, or while the reservation is transitioning.
+//
+// OVHcloud only: part of the VPC extension of OVHcloud's Neutron.
 func Delete(ctx context.Context, c *gophercloud.ServiceClient, id string) (r DeleteResult) {
 	resp, err := c.Delete(ctx, deleteURL(c, id), nil)
 	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
