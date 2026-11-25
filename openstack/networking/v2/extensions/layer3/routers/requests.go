@@ -37,6 +37,12 @@ type ListOpts struct {
 	NotTags        string `q:"not-tags"`
 	NotTagsAny     string `q:"not-tags-any"`
 	RevisionNumber *int   `q:"revision_number"`
+
+	// OVHcloud VPC extension.
+
+	// VpcID filters on the VPC of the router. OVHcloud only: a standard
+	// Neutron ignores or rejects this filter.
+	VpcID string `q:"vpc_id"`
 }
 
 // ToRouterListQuery formats a ListOpts into a query string.
@@ -85,6 +91,12 @@ type CreateOpts struct {
 	ProjectID             string       `json:"project_id,omitempty"`
 	GatewayInfo           *GatewayInfo `json:"external_gateway_info,omitempty"`
 	AvailabilityZoneHints []string     `json:"availability_zone_hints,omitempty"`
+
+	// OVHcloud VPC extension.
+
+	// VpcID makes the router the router of this VPC, one router per VPC.
+	// OVHcloud only: a standard Neutron rejects this attribute.
+	VpcID string `json:"vpc_id,omitempty"`
 }
 
 // ToRouterCreateMap builds a create request body from CreateOpts.

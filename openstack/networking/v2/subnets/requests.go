@@ -44,6 +44,17 @@ type ListOpts struct {
 	NotTagsAny        string `q:"not-tags-any"`
 	RevisionNumber    *int   `q:"revision_number"`
 	SegmentID         string `q:"segment_id"`
+
+	// OVHcloud VPC extension.
+
+	// VpcID filters on the VPC of the subnet. OVHcloud only: a standard
+	// Neutron ignores or rejects this filter.
+	VpcID string `q:"vpc_id"`
+
+	// VpcProvisioningStatus filters on the sync state of the VPC binding of
+	// the subnet. OVHcloud only: a standard Neutron ignores or rejects this
+	// filter.
+	VpcProvisioningStatus string `q:"vpc_provisioning_status"`
 }
 
 // ToSubnetListQuery formats a ListOpts into a query string.

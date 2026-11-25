@@ -93,6 +93,10 @@ type Network struct {
 
 	// RevisionNumber optionally set via extensions/standard-attr-revisions
 	RevisionNumber int `json:"revision_number"`
+
+	// VpcID is the VPC identifier. Set at creation, cannot be updated.
+	// OVHcloud VPC extension only: always empty on a standard Neutron.
+	VpcID string `json:"vpc_id"`
 }
 
 func (r *Network) UnmarshalJSON(b []byte) error {

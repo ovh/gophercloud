@@ -39,6 +39,12 @@ type ListOpts struct {
 	RevisionNumber *int   `q:"revision_number"`
 	NetworkType    string `q:"provider:network_type"`
 	SegmentationID *int   `q:"provider:segmentation_id"`
+
+	// OVHcloud VPC extension.
+
+	// VpcID filters on the VPC of the network. OVHcloud only: a standard
+	// Neutron ignores or rejects this filter.
+	VpcID string `q:"vpc_id"`
 }
 
 // ToNetworkListQuery formats a ListOpts into a query string.
@@ -88,6 +94,12 @@ type CreateOpts struct {
 	AvailabilityZoneHints []string `json:"availability_zone_hints,omitempty"`
 	NetworkType           string   `json:"provider:network_type,omitempty"`
 	SegmentationID        *int     `json:"provider:segmentation_id,omitempty"`
+
+	// OVHcloud VPC extension.
+
+	// VpcID attaches the network to this VPC at creation; it cannot change
+	// afterwards. OVHcloud only: a standard Neutron rejects this attribute.
+	VpcID string `json:"vpc_id,omitempty"`
 }
 
 // ToNetworkCreateMap builds a request body from CreateOpts.
